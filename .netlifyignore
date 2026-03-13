@@ -1,0 +1,8 @@
+# Exclude from Netlify deploy - keeps deploy fast and lightweight
+node_modules
+*.md
+!README.md
+.git
+.env*
+*.log
+.DS_Store
