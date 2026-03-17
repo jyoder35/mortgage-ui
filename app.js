@@ -83,7 +83,9 @@ let zipResolved=false;
 function setZipMsg(type,text){ const el=$("zipMsg"); if(!text){ el.style.display="none"; el.textContent=""; el.className="msg"; return; } el.className="msg "+(type==="warn"?"bad":"ok"); el.textContent=text; el.style.display="block"; }
 function setGateEnabled(en){
  const gateBtn = $("btnGate");
- if (gated){ gateBtn.style.display = "none"; return; }
+ const saveBtn = $("btnSave");
+ if (gated){ gateBtn.style.display = "none"; if (saveBtn) saveBtn.style.display = ""; return; }
+ if (saveBtn) saveBtn.style.display = "none";
  gateBtn.style.display = "";
  gateBtn.disabled = !en;
 }
@@ -849,7 +851,7 @@ function upsertLead(){
   localStorage.setItem("azm_leadPhone", v.phone);
   gated = true;
   toggleResultsVisibility(true);
-  $("btnGate").style.display = "none";
+  refreshUnlockButton();
   showStatus("Saved. Pricing…","ok");
   toast("Unlocked","success");
   $("leadSubmit").disabled = false;
