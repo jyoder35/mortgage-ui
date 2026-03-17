@@ -143,18 +143,20 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
 .footer-buttons-inner{ display:flex; align-items:center; gap:10px; }
 .footer-status{ display:flex; align-items:center; flex:1; min-width:0; }
 @media (max-width:600px){
- .app{ padding-bottom:98px; } /* red space ≈ green gap (10px) */
+ .app{ padding-bottom:92px; }
+ .panel{ margin-bottom:8px; }
+ .container.app{ padding-bottom:92px; }
  .footer-bar{ height:auto; min-height:auto; padding:6px 0; }
  .footer-inner{ flex-direction:column; align-items:stretch; gap:10px; }
  .footer-buttons{
-  overflow-x:auto; overflow-y:hidden;
+  display:block; overflow-x:auto; overflow-y:hidden;
   padding:6px 0 10px; margin:0 -16px; padding-left:16px; padding-right:24px;
-  -webkit-overflow-scrolling:touch; overscroll-behavior-x:none;
+  -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;
   scrollbar-width:none; -ms-overflow-style:none;
-  min-height:44px;
+  min-height:44px; min-width:0;
  }
  .footer-buttons::-webkit-scrollbar{ display:none; }
- .footer-buttons-inner{ display:flex; align-items:center; gap:8px; width:max-content; padding-right:16px; }
+ .footer-buttons-inner{ display:inline-flex; align-items:center; gap:8px; padding-right:16px; white-space:nowrap; }
  .footer-buttons .btn{ flex:0 0 auto; min-width:100px; padding:8px 12px; font-size:12px; }
  .footer-status{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-shrink:0; padding:0 4px; }
  .footer-indicator{ order:unset; width:auto; text-align:left; margin:0; font-size:12px; flex:1; min-width:0; }
