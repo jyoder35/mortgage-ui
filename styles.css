@@ -85,8 +85,8 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
 .placeholder-required:placeholder-shown{ border-color:#fbbf24; background:#fffbea; }
 
 /* Delta classes — negative => green, positive => red */
-.delta-pos{ color:var(--ok); }
-.delta-neg{ color:var(--bad); }
+.kpi-value.delta-pos{ color:var(--ok); }
+.kpi-value.delta-neg{ color:var(--bad); }
 
 /* ● badge for Re‑Calculate */
 .dot{

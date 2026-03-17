@@ -16,7 +16,7 @@ function setFooterIndicator(text, type=""){ const el = $("footerIndicator"); el.
 function showStatus(text, type=""){ const s = $("statusLine"); if (s){ s.textContent = text; s.className = "status" + (type ? (" " + type) : ""); } setFooterIndicator(text, type); }
 function toast(msg, type="info", timeout=2400){ const host = $("toastHost"); const div = document.createElement("div"); div.className = `toast ${type}`; div.textContent = msg; host.appendChild(div); requestAnimationFrame(()=>div.classList.add("in")); setTimeout(()=>{ div.classList.remove("in"); setTimeout(()=>host.removeChild(div),240); }, timeout); }
 let lastPricingCompleteToast = 0;
-function toastPricingComplete(){ const now = Date.now(); if (now - lastPricingCompleteToast < 2500) return; lastPricingCompleteToast = now; toastPricingComplete(); }
+function toastPricingComplete(){ const now = Date.now(); if (now - lastPricingCompleteToast < 1500) return; lastPricingCompleteToast = now; toast("Pricing complete","success"); }
 /* ---------- Endpoints ---------- */
 const WS2_PRICE = "https://script.google.com/macros/s/AKfycbzM2epYNmWxxIP5Sp4Fnl1iz4tCcSf_lCVGb0Hm-0pQBaST8mb8EsQ-jVC6_5WIXZon/exec?action=price&curve=9&points=-1,-0.5,0,0.5,1,1.5,2,2.5,3&fields=core";
 
