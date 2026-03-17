@@ -142,12 +142,19 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
 .footer-buttons{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .footer-status{ display:flex; align-items:center; flex:1; min-width:0; }
 @media (max-width:600px){
- .app{ padding-bottom:100px; }
- .footer-bar{ height:auto; min-height:auto; padding:4px 0; }
- .footer-inner{ flex-direction:column; align-items:stretch; gap:4px; }
- .footer-buttons{ overflow-x:auto; overflow-y:hidden; flex-wrap:nowrap; gap:6px; padding:2px 0; -webkit-overflow-scrolling:touch; }
- .footer-buttons .btn{ flex:0 0 auto; min-width:100px; padding:6px 10px; font-size:12px; }
- .footer-status{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-shrink:0; }
+ .app{ padding-bottom:110px; }
+ .footer-bar{ height:auto; min-height:auto; padding:6px 0; }
+ .footer-inner{ flex-direction:column; align-items:stretch; gap:10px; }
+ .footer-buttons{
+  overflow-x:auto; overflow-y:hidden; flex-wrap:nowrap; gap:8px;
+  padding:6px 0 10px; padding-right:24px;
+  -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;
+  scrollbar-width:none; -ms-overflow-style:none;
+  min-height:44px; align-items:center; justify-content:flex-start;
+ }
+ .footer-buttons::-webkit-scrollbar{ display:none; }
+ .footer-buttons .btn{ flex:0 0 auto; min-width:100px; padding:8px 12px; font-size:12px; }
+ .footer-status{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-shrink:0; padding:0 4px; }
  .footer-indicator{ order:unset; width:auto; text-align:left; margin:0; font-size:12px; flex:1; min-width:0; }
  .timestamp{ order:unset; width:auto; text-align:right; margin:0; font-size:12px; flex-shrink:0; }
 }
