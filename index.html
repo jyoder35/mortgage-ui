@@ -238,17 +238,20 @@
   <!-- Floating Footer: action buttons + pricing indicator -->
   <footer class="footer-bar" role="contentinfo">
     <div class="container footer-inner">
-      <button id="btnGate" class="btn btn-primary" disabled title="Enter required fields to continue">Get My Results</button>
-      <button id="btnRecalc" class="btn" disabled>
-        <span id="recalcDot" class="dot" aria-hidden="true"></span>
-        Re‑Calculate
-      </button>
-      <button id="btnSave" class="btn" disabled>Email Me This Quote</button>
-      <a id="btnBookCall" class="btn" href="https://connect.theloportal.com/widget/bookings/azm-all" target="_blank" rel="noopener noreferrer">Book a Call</a>
-      <button id="btnReset" class="btn btn-ghost">Reset</button>
-      <!-- pricing indicator -->
-      <div id="footerIndicator" class="footer-indicator">Ready</div>
-      <div id="lastQuoted" class="timestamp"></div>
+      <div class="footer-buttons">
+        <button id="btnGate" class="btn btn-primary" disabled title="Enter required fields to continue">Get My Results</button>
+        <button id="btnRecalc" class="btn" disabled>
+          <span id="recalcDot" class="dot" aria-hidden="true"></span>
+          Re‑Calculate
+        </button>
+        <button id="btnSave" class="btn" disabled>Email Me This Quote</button>
+        <a id="btnBookCall" class="btn" href="https://connect.theloportal.com/widget/bookings/azm-all" target="_blank" rel="noopener noreferrer">Book a Call</a>
+        <button id="btnReset" class="btn btn-ghost">Reset</button>
+      </div>
+      <div class="footer-status">
+        <div id="footerIndicator" class="footer-indicator">Ready</div>
+        <div id="lastQuoted" class="timestamp"></div>
+      </div>
     </div>
   </footer>
 
