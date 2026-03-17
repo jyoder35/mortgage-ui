@@ -137,6 +137,13 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
  background:rgba(255,255,255,.96); backdrop-filter:blur(6px);
  border-top:1px solid var(--line);
  height:var(--footer-h); display:flex; align-items:center;
+ padding-bottom:env(safe-area-inset-bottom,0);
+ box-sizing:border-box;
+}
+.footer-bar::after{
+ content:""; position:absolute; left:0; right:0; top:100%;
+ height:env(safe-area-inset-bottom,0);
+ background:rgba(255,255,255,.98);
 }
 .footer-inner{ display:flex; align-items:center; gap:10px; flex-wrap:nowrap; }
 .footer-buttons{ display:flex; align-items:center; gap:10px; flex-shrink:0; }

@@ -15,6 +15,8 @@ const nowStamp = () => { const d = new Date(); return `${String(d.getMonth()+1).
 function setFooterIndicator(text, type=""){ const el = $("footerIndicator"); el.textContent = text || ""; el.className = "footer-indicator" + (type ? " " + type : ""); }
 function showStatus(text, type=""){ const s = $("statusLine"); if (s){ s.textContent = text; s.className = "status" + (type ? (" " + type) : ""); } setFooterIndicator(text, type); }
 function toast(msg, type="info", timeout=2400){ const host = $("toastHost"); const div = document.createElement("div"); div.className = `toast ${type}`; div.textContent = msg; host.appendChild(div); requestAnimationFrame(()=>div.classList.add("in")); setTimeout(()=>{ div.classList.remove("in"); setTimeout(()=>host.removeChild(div),240); }, timeout); }
+let lastPricingCompleteToast = 0;
+function toastPricingComplete(){ const now = Date.now(); if (now - lastPricingCompleteToast < 2500) return; lastPricingCompleteToast = now; toastPricingComplete(); }
 /* ---------- Endpoints ---------- */
 const WS2_PRICE = "https://script.google.com/macros/s/AKfycbzM2epYNmWxxIP5Sp4Fnl1iz4tCcSf_lCVGb0Hm-0pQBaST8mb8EsQ-jVC6_5WIXZon/exec?action=price&curve=9&points=-1,-0.5,0,0.5,1,1.5,2,2.5,3&fields=core";
 
@@ -312,9 +314,8 @@ function computeFinancedLoan(baseLoan){
 function renderLoanLine(){
  const base=Number($("loan").value||0); if(!isFinite(base)||base<=0){ $("loanLine").textContent=""; return; }
  const calc=computeFinancedLoan(base);
- $("loanLine").textContent = (calc!==base)
- ? `Base Loan: $${fmtUSD0(base)} • Financed Loan (est.): $${fmtUSD0(calc)}`
- : `Base Loan: $${fmtUSD0(base)}`;
+ if (calc===base){ $("loanLine").textContent=""; return; }
+ $("loanLine").textContent = `Base Loan: $${fmtUSD0(base)} • Financed Loan (est.): $${fmtUSD0(calc)}`;
 }
 function renderHelperNotes(){
  const kind=currentProgKind(), txn=$("txn").value;
@@ -621,7 +622,7 @@ async function priceNow(){
     renderDelta(quoteWith, q["0"], inputs);
     $("btnSave").disabled=false;
     showStatus("Priced successfully.","ok");
-    toast("Pricing complete","success");
+    toastPricingComplete();
     lastPricedFicoBucket = ficoBucketKey(inputs.programUI, inputs.ficoEntered);
     lastProgramForBucket = inputs.programUI;
 
@@ -646,7 +647,7 @@ async function priceNow(){
    fillCard("par", computeCardData(quotePar, parInputsForUI));
    renderDelta(quoteWith, quotePar, inputs);
    showStatus("Priced successfully.","ok");
-   toast("Pricing complete","success");
+   toastPricingComplete();
    lastQuotePar = quotePar; lastParSig = parSig;
    lastPricedFicoBucket = ficoBucketKey(inputs.programUI, inputs.ficoEntered);
    lastProgramForBucket = inputs.programUI;
@@ -661,7 +662,7 @@ async function priceNow(){
    fillCard("par", computeCardData(lastQuotePar, parInputsForUI));
    renderDelta(quoteWith, lastQuotePar, inputs);
    showStatus("Priced successfully.","ok");
-   toast("Pricing complete","success");
+   toastPricingComplete();
    cacheSet(parKey, lastQuotePar);
    lastPricedFicoBucket = ficoBucketKey(inputs.programUI, inputs.ficoEntered);
    lastProgramForBucket = inputs.programUI;
@@ -700,7 +701,7 @@ async function priceNow(){
   fillCard("par", computeCardData(quotePar, parInputsForUI));
   renderDelta(quoteWith, quotePar, inputs);
   showStatus("Priced successfully.","ok");
-  toast("Pricing complete","success");
+  toastPricingComplete();
   lastPricedFicoBucket = ficoBucketKey(inputs.programUI, inputs.ficoEntered);
   lastProgramForBucket = inputs.programUI;
 
