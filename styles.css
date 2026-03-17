@@ -139,10 +139,11 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
  height:var(--footer-h); display:flex; align-items:center;
 }
 .footer-inner{ display:flex; align-items:center; gap:10px; flex-wrap:nowrap; }
-.footer-buttons{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; flex-shrink:0; }
+.footer-buttons{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .footer-status{ display:flex; align-items:center; flex:1; min-width:0; }
 @media (max-width:600px){
- .app{ padding-bottom:100px; }
+ .app{ padding-bottom:130px; }
+ .footer-buttons{ display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:4px 0; }
  .panel{ margin-bottom:8px; }
  .footer-bar{ height:auto; min-height:auto; padding:6px 0; }
  .footer-inner{ flex-direction:column; align-items:stretch; gap:10px; }
