@@ -1,0 +1,6 @@
+# Paths here are not uploaded by `clasp push`
+.git/**
+node_modules/**
+**/.DS_Store
+.clasp.json.example
+README.md

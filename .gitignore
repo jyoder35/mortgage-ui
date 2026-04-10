@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ---- Local-only files (not pushed to GitHub) ----
+# Add new names here, one per line. See LOCAL_SESSION.md for a quick how-to.
+LOCAL_SESSION.md
+private/
+*.private.md
+*.local.code-workspace
+
+# Google Apps Script (clasp) — scriptId is local / optional to share
+apps-script/ws2/.clasp.json
+apps-script/ws4/.clasp.json

@@ -6,9 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clasp:login": "clasp login",
+    "clasp:pull:ws2": "clasp pull -P apps-script/ws2",
+    "clasp:push:ws2": "clasp push -P apps-script/ws2",
+    "clasp:open:ws2": "clasp open-script -P apps-script/ws2",
+    "clasp:status:ws2": "clasp status -P apps-script/ws2",
+    "clasp:logs:ws2": "clasp logs -P apps-script/ws2",
+    "clasp:pull:ws4": "clasp pull -P apps-script/ws4",
+    "clasp:push:ws4": "clasp push -P apps-script/ws4",
+    "clasp:open:ws4": "clasp open-script -P apps-script/ws4",
+    "clasp:status:ws4": "clasp status -P apps-script/ws4",
+    "clasp:logs:ws4": "clasp logs -P apps-script/ws4"
   },
   "devDependencies": {
+    "@google/clasp": "^3.3.0",
     "vite": "^7.3.1"
   }
 }

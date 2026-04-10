@@ -42,6 +42,30 @@ function getAttribution(){
  } catch { /* ignore */ }
  return att;
 }
+/* ---------- Hidden admin: bypass lead gate (same page, URL key) ---------- */
+const AZM_ADMIN_QUERY_KEY = "azm_admin";
+/** Visible in source — change to a private value your team shares. */
+const AZM_ADMIN_SECRET = "azm-pricing-internal";
+
+/**
+ * If the URL contains `?azm_admin=<AZM_ADMIN_SECRET>`, enable pricing without the lead modal.
+ * Strips the param from the address bar (replaceState). Does not write lead data to localStorage.
+ * @returns {boolean} whether admin bypass is active for this page load
+ */
+function applyAdminBypassFromUrl(){
+ try {
+  const params = new URLSearchParams(window.location.search);
+  const v = params.get(AZM_ADMIN_QUERY_KEY);
+  if (v == null || v !== AZM_ADMIN_SECRET) return false;
+  params.delete(AZM_ADMIN_QUERY_KEY);
+  const qs = params.toString();
+  const next = window.location.pathname + (qs ? "?" + qs : "") + window.location.hash;
+  window.history.replaceState({}, "", next);
+  return true;
+ } catch { return false; }
+}
+
+const adminBypassActive = applyAdminBypassFromUrl();
 /* ---------- Tax/HOI ---------- */
 const STATE_TAX_RATE_2023_PCT = {
  AL:0.375, AK:0.875, AZ:0.500, AR:0.500, CA:0.750, CO:0.500, CT:1.500, DE:0.500,
@@ -343,7 +367,8 @@ function loanStructureComplete(){
 }
 function refreshUnlockButton(){ setGateEnabled(zipResolved && loanStructureComplete()); }
 /* ---------- Pricing pipeline: state ---------- */
-let leadToken=localStorage.getItem("azm_leadToken")||"", lastQuote=null, lastQuotePar=null, gated=!!leadToken;
+let leadToken = adminBypassActive ? "azm_admin_session" : (localStorage.getItem("azm_leadToken") || ""),
+ lastQuote=null, lastQuotePar=null, gated=!!leadToken;
 let lastParSig=null, lastPricedFicoBucket=null, lastProgramForBucket=null;
 let debounceTimer=null, priceCallSeq=0, coreDirty=false;
 let priceController = null, leadController = null;
@@ -415,11 +440,19 @@ function currentInputs(){
   loan: baseLoan, loanCalc, ltv,
   fico: pricingFico, ficoEntered: enteredFico,
   borrowerPts,
-  taxes, ins, hoa,
+  taxes, ins,
+  /** Monthly HOA dollars (field label); annualized only when sent to WS2 pricing. */
+  hoa,
   pmiToggle, dtiOver45, twoPlusBorrowers, firstTimeBuyer,
   fha, va,
   dscrRatio
  };
+}
+/** WS2 pricing payload uses annual taxes, insurance, and HOA like legacy calculator fields. */
+function inputsForPricingPayload(inputs){
+ const h = Number(inputs.hoa);
+ const hoaAnnual = isFinite(h) ? h * 12 : 0;
+ return { ...inputs, hoa: hoaAnnual };
 }
 function parSignatureFrom(inputs){
  return JSON.stringify({
@@ -445,6 +478,7 @@ function cacheGet(key){ const e = priceCache.get(key); if(!e) return null; if(Da
 function cacheSet(key, data){ priceCache.set(key, { ts: Date.now(), data }); }
 /* ---------- Results rendering ---------- */
 function monthly(n){ return isFinite(+n) ? Math.round(+n/12) : 0; }
+function monthlyHoaFromField(hoa){ const n = Number(hoa); return isFinite(n) ? Math.round(n) : 0; }
 function housingTotal(pi, mi, taxesM, insM, hoaM){ return (Number(pi)||0)+(Number(mi)||0)+(Number(taxesM)||0)+(Number(insM)||0)+(Number(hoaM)||0); }
 function renderKPIs(quoteWith){
  const rate = quoteWith?.noteRate;
@@ -472,7 +506,7 @@ function computeCardData(quote, inputs){
   mi: quote?.miMonthly,
   taxesM: monthly(inputs.taxes),
   insM: monthly(inputs.ins),
-  hoaM: monthly(inputs.hoa)
+  hoaM: monthlyHoaFromField(inputs.hoa)
  };
 }
 function rateCost(baseLoan, pts){ return Math.round((Number(baseLoan)||0) * ((Number(pts)||0)/100)); }
@@ -567,6 +601,7 @@ async function priceNow(){
  if (priceController) priceController.abort();
  priceController = new AbortController();
  const inputs = currentInputs();
+ const inputsPrice = inputsForPricingPayload(inputs);
  const selSig = selSignatureFrom(inputs);
  const parSig = parSignatureFrom(inputs);
  const selKey = "sel\n" + selSig;
@@ -585,7 +620,7 @@ async function priceNow(){
  }
  try{
   if(!quoteWith){
-   const payloadSel = { payload:{ inputs, leadToken } };
+   const payloadSel = { payload:{ inputs: inputsPrice, leadToken } };
    captureDev("devPriceReq", payloadSel);
    const resSel = await fetch(WS2_PRICE,{
     method:"POST", headers:{ "Content-Type":"text/plain" },
@@ -675,7 +710,7 @@ async function priceNow(){
   // Legacy Par fetch
   const parInputs = { ...inputs, borrowerPts: 0 };
   parInputs.loanCalc = computeFinancedLoan(parInputs.loan);
-  const payloadPar = { payload:{ inputs: parInputs, leadToken } };
+  const payloadPar = { payload:{ inputs: inputsForPricingPayload(parInputs), leadToken } };
   captureDev("devPriceReqPar", payloadPar);
   const resPar = await fetch(WS2_PRICE,{
     method:"POST", headers:{ "Content-Type":"text/plain" },
@@ -1032,4 +1067,19 @@ function initialRender(){
  toggleResultsVisibility(!!leadToken);
  showStatus("Pricing ready — click Get My Results to review.","info");
 }
-document.addEventListener("DOMContentLoaded", () => { getAttribution(); bindEvents(); initialRender(); });
+document.addEventListener("DOMContentLoaded", () => {
+ getAttribution();
+ bindEvents();
+ initialRender();
+ if (adminBypassActive){
+  showStatus("Admin preview — lead gate bypassed.", "info");
+  toggleResultsVisibility(true);
+  refreshUnlockButton();
+  coreDirty = true;
+  setRecalcState();
+  showRecalcOrGateStatus();
+  if (validateBeforePrice() && zipResolved){
+   queueMicrotask(() => priceNow());
+  }
+ }
+});
