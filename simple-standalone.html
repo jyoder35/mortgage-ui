@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Live Estimate — AZM Lending</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+    img-src 'self' data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self';
+    connect-src 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com;">
+  <!-- Standalone entry: no “Edit Affordability”; funnel uses /live/ after /afford/. -->
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <img src="assets/logo.png" alt="AZM Lending" class="topbar-logo" />
+      <div class="topbar-text">
+        <h1>Live Estimate</h1>
+        <p id="simpleSubhead" class="topbar-sub">Confirm your loan scenario</p>
+      </div>
+      <span id="simpleStepBadge" class="step-badge" style="display:none;">Step 2 of 3</span>
+    </div>
+  </header>
+
+  <main class="container app" id="simpleMain">
+    <p id="simpleBanner" class="msg" style="display:none; margin-bottom:16px;"></p>
+
+    <!-- FORM PANELS -->
+    <section class="panel" id="panelScenario">
+      <div class="panel-title">Program &amp; Property</div>
+      <div class="grid grid-2">
+        <div class="form-field">
+          <label for="program">Program</label>
+          <select id="program">
+            <option value="CONV">Conventional</option>
+            <option value="FHA">FHA</option>
+            <option value="VA">VA</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="stateSelect">State</label>
+          <select id="stateSelect"></select>
+          <input type="hidden" id="zip" value="" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panelStructure">
+      <div class="panel-title">Purchase Structure</div>
+      <div class="grid grid-purchase">
+        <div class="form-field">
+          <label for="value">Purchase Price ($)</label>
+          <input id="value" inputmode="decimal" />
+        </div>
+        <div class="form-field">
+          <label for="equity">Down Payment ($)</label>
+          <input id="equity" inputmode="decimal" />
+        </div>
+        <div class="form-field">
+          <label for="equityPct">Down Payment (%)</label>
+          <input id="equityPct" inputmode="decimal" placeholder="e.g. 10" />
+        </div>
+        <div class="form-field">
+          <label for="loan">Loan Amount ($)</label>
+          <input id="loan" inputmode="decimal" />
+        </div>
+        <div class="form-field col-span-2">
+          <label>LTV</label>
+          <div id="ltvDisplay" class="chip" style="margin-top:8px; font-size:1.05rem; display:inline-block; min-width:6rem;">—</div>
+          <input type="hidden" id="ltv" value="" />
+        </div>
+      </div>
+      <div id="loanStructMsg" class="msg bad" style="display:none;"></div>
+    </section>
+
+    <section class="panel" id="panelTaxes">
+      <div class="panel-title">Taxes, Insurance &amp; HOA</div>
+      <div class="grid grid-3">
+        <div class="form-field">
+          <label for="taxes">Annual Property Taxes ($)</label>
+          <input id="taxes" inputmode="decimal" />
+        </div>
+        <div class="form-field">
+          <label for="ins">Annual Homeowners Insurance ($)</label>
+          <input id="ins" inputmode="decimal" />
+        </div>
+        <div class="form-field">
+          <label for="hoa">Monthly HOA ($)</label>
+          <input id="hoa" inputmode="decimal" value="0" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panelCredit">
+      <div class="panel-title">Credit &amp; Factors</div>
+      <div class="grid grid-2">
+        <div class="form-field">
+          <label for="fico">FICO</label>
+          <div class="slider-row">
+            <input type="range" id="ficoRange" min="500" max="850" step="1" value="740" />
+            <div class="chip" id="ficoChip">740</div>
+          </div>
+          <input id="fico" inputmode="numeric" value="740" />
+          <div id="ficoMsg" class="msg bad" style="display:none;"></div>
+        </div>
+        <div id="vaFactorsCol" class="form-field" style="display:none;">
+          <label>VA Specific Factors</label>
+          <div class="va-factors-list">
+            <label class="pill" id="pillVaExempt">
+              <input type="checkbox" id="vaExempt" class="pill-input-hidden" />
+              Receiving 10+% VA Disability
+            </label>
+            <label class="pill pill-selected" id="pillVaFirstUse">
+              <input type="checkbox" id="vaFirstUse" checked class="pill-input-hidden" />
+              First-Use of VA Loan
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hidden inputs always present -->
+    <input type="hidden" id="txn" value="PURCHASE" />
+    <input type="hidden" id="term" value="360" />
+    <input type="hidden" id="points" value="0" />
+    <input type="hidden" id="pointsRange" value="0" />
+    <input type="checkbox" id="pmiToggle" checked hidden />
+    <input type="checkbox" id="twoPlusBorrowers" hidden />
+    <input type="checkbox" id="firstTimeBuyer" hidden />
+    <input type="hidden" id="dscrRatio" value="1.25" />
+
+    <!-- RESULTS PANEL -->
+    <section class="panel" id="resultsPanel" style="display:none;">
+      <div class="panel-title">Your Estimate</div>
+      <div class="results-summary grid grid-2">
+        <div class="kpi">
+          <div class="kpi-label">Your Interest Rate</div>
+          <div id="kpiRate" class="kpi-value">—</div>
+          <div id="kpiAPR" class="kpi-hint" aria-label="Annual percentage rate"></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Estimated Total Monthly Payment</div>
+          <div class="kpi-value-line"><span id="kpiTotal" class="kpi-value">—</span><span class="kpi-suffix" aria-hidden="true">/ month</span></div>
+          <p class="kpi-hint" id="kpiPaymentHint">Includes principal, interest, taxes, insurance, PMI/MIP (if required), plus HOA (paid separately).</p>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="card-title">Monthly Payment Breakdown</div>
+        <div class="card-body">
+          <div class="kv"><span>Principal &amp; Interest</span><span id="with_pi">—</span></div>
+          <div class="kv"><span>Mortgage Insurance</span><span id="with_mi">—</span></div>
+          <div class="kv"><span>Property Taxes</span><span id="with_taxes">—</span></div>
+          <div class="kv"><span>Home Insurance</span><span id="with_ins">—</span></div>
+          <div class="kv"><span>HOA</span><span id="with_hoa">—</span></div>
+          <div class="kv"><span>Total Monthly Payment</span><span id="with_housing">—</span></div>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="card-title">Loan Summary</div>
+        <div class="card-body">
+          <div class="kv"><span>Loan Amount</span><span id="with_loanCalc">—</span></div>
+          <div class="kv"><span>Loan Type</span><span id="with_loanType">—</span></div>
+          <div class="kv"><span>Loan Term</span><span id="with_loanTerm">—</span></div>
+          <div class="kv"><span>Rate Type</span><span id="with_rateType">—</span></div>
+        </div>
+      </div>
+      <p id="lastQuoted" class="quote-generated-line"></p>
+      <div class="result-human-legal">
+        <h2 class="result-human-title">What This Quote Means</h2>
+        <p class="result-human">
+          This estimate gives you a realistic view of your expected monthly payment based on current information. Final terms may change after credit review, property verification, and market conditions.
+        </p>
+        <p class="result-disclaimer result-legal">This is not a Loan Estimate or commitment to lend. Rate shown is the 1-point buydown rate; APR is approximate and reflects the 1-point cost amortized over 30 years plus applicable mortgage insurance or VA funding fee charges. APR does not include title, escrow, origination, appraisal, or other third-party closing costs. Actual rate and APR will vary based on credit profile, property, and market conditions. NMLS #2411923.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-bar" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-buttons">
+        <button id="btnRecalc" class="btn btn-primary" type="button">Get Rate</button>
+        <a id="btnBookCall" class="btn" href="https://myazm.com/azm-booking/" target="_blank" rel="noopener noreferrer">Book a Call</a>
+        <button id="btnSave" class="btn" type="button" disabled>Save This Quote</button>
+        <button id="btnEditScenario" class="btn" type="button" style="display:none;">Adjust My Scenario</button>
+      </div>
+      <div class="footer-status">
+        <div id="footerIndicator" class="footer-indicator">Enter fields, then Get Rate</div>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toastHost" class="toast-host" aria-live="polite"></div>
+
+  <section id="emailModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div id="emailModalBackdrop" class="modal-backdrop"></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <div>
+          <div class="modal-title">Save This Quote</div>
+          <div class="modal-subtitle">Please confirm your email address</div>
+        </div>
+        <button id="closeEmail" class="btn-icon" type="button" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="emailConfirm">Email</label>
+          <input id="emailConfirm" type="email" autocomplete="email" />
+          <p class="footer-note-small">Check spam folder if you don&rsquo;t see this email within 5 minutes.</p>
+          <div id="emailConfirmErr" class="msg bad" style="display:none;"></div>
+        </div>
+        <div id="emailErr" class="msg bad" style="display:none; margin-top:8px;"></div>
+        <div class="modal-actions">
+          <button id="cancelEmail" class="btn" type="button">Cancel</button>
+          <button id="emailSubmit" class="btn btn-primary" type="button">Send</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="shared-mortgage-data.js"></script>
+  <script src="simple.js"></script>
+</body>
+</html>

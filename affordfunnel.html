@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Affordability Calculator — AZM Lending</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+    img-src 'self' data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self';
+    connect-src 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com;">
+  <style>
+    .afford-result-box{ text-align:center; padding:20px 16px; border:2px dashed var(--line); border-radius:14px; background:#fafafa; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+    .afford-result-box .price-lbl{ font-size:13px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; margin-bottom:4px; }
+    .afford-result-box .big{ font-size:2.8rem; font-weight:800; color:var(--text); margin:0 0 4px; letter-spacing:-0.02em; }
+    .afford-recommend{ display:none; background:#fffbeb; border:1px solid #fcd34d; border-radius:var(--radius); padding:16px; }
+    .afford-recommend.visible{ display:block; }
+    .recommend-btns{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+    .footer-note-small{ font-size:12px; color:var(--muted); line-height:1.5; margin:0; }
+    @media (max-width:600px){ .afford-result-box .big{ font-size:2rem; } }
+  </style>
+</head>
+<body data-afford-page="funnel">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <img src="assets/logo.png" alt="AZM Lending" class="topbar-logo" />
+      <div class="topbar-text">
+        <h1>Affordability Calculator</h1>
+        <p id="affordSubhead" class="topbar-sub">Step 1: Enter your income, debts, and where you’re buying. You’ll refine numbers on the next screen.</p>
+      </div>
+      <span id="funnelBadge" class="step-badge">Step 1 of 3</span>
+    </div>
+  </header>
+
+  <!-- FORM VIEW -->
+  <main class="container app no-footer afford-funnel-app" id="affordFormView">
+
+    <section class="panel afford-panel-tight">
+      <div class="panel-title">Your details</div>
+      <div class="grid grid-2 afford-grid">
+        <div class="form-field">
+          <label for="annualIncomeText">Annual household income</label>
+          <input id="annualIncomeText" type="text" inputmode="numeric" placeholder="$" autocomplete="off" />
+          <div class="field-help">Before taxes. Include co-buyer income.</div>
+        </div>
+        <div class="form-field">
+          <label for="monthlyDebtText">Monthly debts</label>
+          <input id="monthlyDebtText" type="text" inputmode="numeric" placeholder="$ / mo" autocomplete="off" />
+          <div class="field-help">Minimum monthly payment for debts such as credit cards, auto loans, and student loans.</div>
+        </div>
+
+        <div class="form-field">
+          <label for="propState">Property state</label>
+          <select id="propState" name="propState" required></select>
+        </div>
+        <div class="form-field">
+          <label for="goalDownText">Down payment <span style="color:var(--muted); font-weight:400;">(optional)</span></label>
+          <input id="goalDownText" type="text" inputmode="numeric" placeholder="$" autocomplete="off" />
+        </div>
+
+        <div class="form-field form-field--pill-align">
+          <label>Have you owned a home in the last 3 years?</label>
+          <div class="pill-toggle pill-toggle--narrow" role="radiogroup" id="owned3Toggle" aria-label="Have you owned a home in the last 3 years?">
+            <button type="button" class="pill active" data-val="no" role="radio" aria-checked="true">No</button>
+            <button type="button" class="pill" data-val="yes" role="radio" aria-checked="false">Yes</button>
+          </div>
+        </div>
+        <div class="form-field form-field--pill-align">
+          <label>Are you a veteran?</label>
+          <div class="pill-toggle pill-toggle--narrow" role="radiogroup" id="vetToggle" aria-label="Are you a veteran?">
+            <button type="button" class="pill active" data-val="no" role="radio" aria-checked="true">No</button>
+            <button type="button" class="pill" data-val="yes" role="radio" aria-checked="false">Yes</button>
+          </div>
+          <div class="field-help">Active U.S. military, veterans, and eligible spouses qualify for $0-down VA loans.</div>
+        </div>
+      </div>
+
+      <div class="adv-block-form" style="margin-top:14px; padding-top:14px; border-top:1px solid var(--line); min-height:56px; box-sizing:border-box;">
+        <button type="button" class="adv-toggle" id="advFormToggle" aria-expanded="false" aria-controls="advFormBody">
+          <span>Advanced options</span>
+          <span class="adv-chevron" aria-hidden="true">▸</span>
+        </button>
+        <div class="adv-body" id="advFormBody" style="display:none; border-top:none; padding-top:14px; margin:0 0 0 0;">
+          <div class="grid grid-2 afford-grid afford-grid--compact">
+            <div class="form-field">
+              <label for="advTaxForm">Annual property taxes</label>
+              <input id="advTaxForm" type="text" inputmode="numeric" placeholder="$" autocomplete="off" />
+              <div class="field-help">Leave blank to estimate property taxes based on your state and home price.</div>
+            </div>
+            <div class="form-field">
+              <label for="advHoiForm">Annual homeowners insurance</label>
+              <input id="advHoiForm" type="text" inputmode="numeric" placeholder="$" autocomplete="off" />
+              <div class="field-help">Leave blank to estimate homeowners insurance based on your state and home price.</div>
+            </div>
+            <div class="form-field">
+              <label for="advHoaForm">Monthly HOA</label>
+              <input id="advHoaForm" type="text" inputmode="numeric" placeholder="$ / mo" autocomplete="off" />
+              <div class="field-help">Leave blank for no HOA dues.</div>
+            </div>
+            <div class="form-field form-field--pill-align">
+              <label>Include PMI?</label>
+              <div class="pill-toggle pill-toggle--narrow" role="radiogroup" id="pmiFormToggle" aria-label="Include PMI">
+                <button type="button" class="pill active" data-val="no" role="radio" aria-checked="true">No</button>
+                <button type="button" class="pill" data-val="yes" role="radio" aria-checked="false">Yes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="affordCalcErr" class="msg bad" style="display:none; margin-top:14px;"></div>
+
+      <div class="form-inline-actions" style="margin-top:16px;">
+        <button type="button" class="btn btn-primary" id="btnCalc">See how much I can afford</button>
+        <button type="button" class="btn" id="btnReset">Reset</button>
+      </div>
+    </section>
+
+    <p class="msg footer-note-small" style="text-align:center;">*Educational only — not a commitment to lend. NMLS #2411923.</p>
+
+  </main>
+
+  <!-- RESULTS VIEW -->
+  <main class="container app no-footer afford-funnel-app" id="affordResultsView" style="display:none;">
+
+    <section class="panel afford-panel-tight">
+      <div class="afford-result-box">
+        <div class="price-lbl">Home price</div>
+        <div class="big" id="outMaxPrice">—</div>
+        <div class="result-rows">
+          <div class="result-row">
+            <span class="lbl">Monthly payment</span>
+            <span id="outPayment">—</span>
+          </div>
+          <div class="result-row">
+            <span class="lbl">Loan amount</span>
+            <span id="outLoan">—</span>
+          </div>
+        </div>
+      </div>
+      <p id="affordRateNote" class="footer-note-small" style="margin-top:8px; text-align:center;">
+        Purchase price based on live rates and data estimated for your state, illustrative only. Contact us for specific prequalification figures.
+      </p>
+    </section>
+
+    <section class="panel afford-panel-tight">
+      <div class="panel-title">Debt-to-income ratio</div>
+      <div class="dti-readout">
+        <span id="dtiValue" class="dti-value">39%</span>
+        <span class="dti-sep">|</span>
+        <span id="dtiLabel" class="dti-label comfortable">Comfortable</span>
+      </div>
+      <input id="dtiSlider" type="range" min="28" max="50" step="1" value="39" class="dti-range" aria-label="Debt-to-income target" />
+    </section>
+
+    <section class="panel afford-panel-tight">
+      <div class="panel-title">Down payment</div>
+      <div class="form-field">
+        <div class="split-field-row">
+          <input id="downDollarText" type="text" inputmode="numeric" placeholder="$" autocomplete="off" />
+          <div>
+            <input id="downDollarSlider" type="range" min="0" max="200000" step="1000" value="0" aria-label="Down payment cash slider" />
+            <div class="range-label-row"><span>$0</span><strong id="downPctDisplay">—</strong><span id="downDollarMaxLbl">$200k</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="dpMinNote" class="dp-min-note" style="display:none;">Minimum Down Payments: VA 0% | FHA 3.5% | Conventional 3%* (First&#8209;Time Home Buyers only; otherwise 5%)</div>
+    </section>
+
+    <section class="panel afford-panel-tight">
+      <button type="button" class="adv-toggle" id="advToggle" aria-expanded="false" aria-controls="advBody">
+        <span>Advanced options</span>
+        <span class="adv-chevron" aria-hidden="true">▸</span>
+      </button>
+      <div class="adv-body" id="advBody" style="display:none; border-top:none; padding-top:14px; margin:0 0 0 0;">
+        <p class="helper-notes" style="margin:0 0 10px;">Override estimated annual taxes and insurance if known, or add HOA.</p>
+          <div class="grid grid-2 afford-grid">
+            <div class="form-field">
+              <label for="advTax">Annual property taxes</label>
+              <input id="advTax" type="text" inputmode="numeric" placeholder="(est.)" autocomplete="off" />
+            </div>
+            <div class="form-field">
+              <label for="advHoi">Annual homeowners insurance</label>
+              <input id="advHoi" type="text" inputmode="numeric" placeholder="(est.)" autocomplete="off" />
+            </div>
+            <div class="form-field">
+              <label for="advHoa">Monthly HOA</label>
+              <input id="advHoa" type="text" inputmode="numeric" placeholder="$ / mo" autocomplete="off" />
+            <div class="field-help">Leave blank for no HOA dues.</div>
+            </div>
+            <div class="form-field form-field--pill-align">
+              <label>Include PMI?</label>
+              <div class="pill-toggle pill-toggle--narrow" role="radiogroup" id="pmiToggle" aria-label="Include PMI">
+                <button type="button" class="pill active" data-val="no" role="radio" aria-checked="true">No</button>
+                <button type="button" class="pill" data-val="yes" role="radio" aria-checked="false">Yes</button>
+              </div>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <div id="affordCalcErrResults" class="msg bad" style="display:none; margin-bottom:14px;"></div>
+
+    <section class="panel afford-panel-tight" id="funnelNext">
+      <div class="panel-title">Want tailored rates?</div>
+      <p class="helper-notes">Tell us a bit more — we'll match you to Conventional, FHA, or VA and open your live estimate with your numbers.</p>
+      <div class="form-inline-actions" style="justify-content:flex-start;">
+        <button type="button" class="btn btn-primary" id="btnOpenLead">Continue</button>
+        <button type="button" class="btn" id="btnEditScenario">Edit scenario</button>
+      </div>
+    </section>
+
+    <section class="panel afford-recommend afford-panel-tight" id="recommendBox">
+      <div class="panel-title" id="recommendTitle">Recommendation</div>
+      <p id="recommendBody" class="helper-notes"></p>
+      <div id="calcBtnGroup" class="recommend-btns"></div>
+      <div id="fhaLimitWarn" class="msg warn" style="display:none; margin-top:14px;"></div>
+    </section>
+
+    <p class="msg footer-note-small" style="text-align:center;">*Educational only — not a commitment to lend. NMLS #2411923.</p>
+
+  </main>
+
+  <div id="toastHost" class="toast-host" aria-live="polite"></div>
+
+  <!-- Lead modal -->
+  <section id="leadModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div id="leadBackdrop" class="modal-backdrop"></div>
+    <div class="modal-card">
+      <header class="modal-header">
+        <div>
+          <div class="modal-title">A few quick details</div>
+          <div class="modal-subtitle">So we can tailor your live estimate.</div>
+        </div>
+        <button type="button" class="btn-icon" id="leadClose" aria-label="Close">✕</button>
+      </header>
+      <div class="modal-body">
+        <div class="grid grid-2">
+          <div class="form-field">
+            <label for="leadFirst">First name</label>
+            <input id="leadFirst" autocomplete="given-name" />
+            <div id="leadFirstErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadLast">Last name</label>
+            <input id="leadLast" autocomplete="family-name" />
+            <div id="leadLastErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadPhone">Phone</label>
+            <input id="leadPhone" inputmode="tel" autocomplete="tel" />
+            <div id="leadPhoneErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadEmail">Email</label>
+            <input id="leadEmail" type="email" autocomplete="email" />
+            <div id="leadEmailErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadCredit">Credit score</label>
+            <select id="leadCredit">
+              <option value="">Select</option>
+              <option value="excellent">Excellent (740+)</option>
+              <option value="good">Good (700–739)</option>
+              <option value="fair">Fair (620–699)</option>
+              <option value="poor">Poor (below 620)</option>
+            </select>
+            <div id="leadCreditErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadVeteran">Are you a veteran?</label>
+            <select id="leadVeteran">
+              <option value="">Select</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <div id="leadVeteranErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadBorrowers">How many borrowers?</label>
+            <select id="leadBorrowers">
+              <option value="1">1</option>
+              <option value="2">2+</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="leadFirstTime">First-time homebuyer?</label>
+            <select id="leadFirstTime">
+              <option value="">Select</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <div id="leadFirstTimeErr" class="msg bad" style="display:none"></div>
+          </div>
+          <div class="form-field">
+            <label for="leadDownAvail">Cash available for down payment (optional)</label>
+            <input id="leadDownAvail" type="number" min="0" step="1000" placeholder="e.g. 40000" />
+          </div>
+          <div class="form-field">
+            <label for="leadTimeline">Buying timeline</label>
+            <select id="leadTimeline">
+              <option value="" disabled selected>Select</option>
+              <option value="ASAP">ASAP</option>
+              <option value="1-2M">1–2 months</option>
+              <option value="3-6M">3–6 months</option>
+              <option value="JustLooking">Just looking</option>
+            </select>
+            <div id="leadTimelineErr" class="msg bad" style="display:none"></div>
+          </div>
+        </div>
+        <div id="leadErr" class="msg bad" style="display:none; margin-top:8px;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="leadCancel">Cancel</button>
+          <button type="button" class="btn btn-primary" id="leadSubmit">Save &amp; see match</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="shared-mortgage-data.js"></script>
+  <script src="afford.js"></script>
+</body>
+</html>

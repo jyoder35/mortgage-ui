@@ -1,0 +1,336 @@
+/* Affordability funnel — works standalone or ?funnel=1 */
+.afford-page {
+  --afford-gold: #d4af37;
+  --afford-gold-dark: #b38e10;
+  --afford-black: #111;
+  --afford-border: #e5e7eb;
+  --afford-muted: #6b7280;
+  min-height: 100vh;
+  background: #f3f4f6;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #0f172a;
+}
+
+.afford-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.afford-card {
+  background: #fff;
+  border: 1px solid var(--afford-border);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.afford-header {
+  padding: 20px;
+  background: linear-gradient(135deg, var(--afford-black), #1f1f1f);
+  color: #fff;
+  border-bottom: 3px solid var(--afford-gold);
+}
+
+.afford-header h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.afford-header p {
+  margin: 6px 0 0;
+  opacity: 0.88;
+  font-size: 0.9rem;
+}
+
+.afford-badge {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.25);
+  color: #fde68a;
+}
+
+.afford-form {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.afford-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--afford-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.afford-field input[type="number"],
+.afford-field select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--afford-border);
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.afford-field input[type="range"] {
+  width: 100%;
+  accent-color: var(--afford-gold);
+}
+
+.afford-field-split .afford-split-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  gap: 12px;
+  align-items: center;
+}
+
+@media (max-width: 520px) {
+  .afford-field-split .afford-split-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.afford-split-text input[type="number"] {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--afford-border);
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+
+.afford-split-text input[type="number"]::placeholder {
+  color: #9ca3af;
+}
+
+.afford-value-masked {
+  color: var(--afford-muted) !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+}
+
+.afford-range-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--afford-muted);
+}
+
+.afford-range-row strong {
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.afford-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.afford-btn {
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--afford-border);
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.afford-btn-primary {
+  background: linear-gradient(135deg, var(--afford-gold), var(--afford-gold-dark));
+  color: #111;
+  border: none;
+}
+
+.afford-btn-ghost {
+  color: var(--afford-muted);
+}
+
+.afford-results {
+  padding: 0 20px 20px;
+}
+
+.afford-result-simple {
+  text-align: center;
+  padding: 24px 16px;
+  border: 2px dashed var(--afford-border);
+  border-radius: 16px;
+  background: #fafafa;
+}
+
+.afford-result-simple .big {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 8px 0;
+}
+
+.afford-result-simple .sub {
+  font-size: 0.95rem;
+  color: var(--afford-muted);
+  margin-top: 4px;
+}
+
+.afford-next {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid var(--afford-border);
+}
+
+.afford-next h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.afford-recommend {
+  display: none;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+}
+
+.afford-recommend.visible {
+  display: block;
+}
+
+.afford-footer-note {
+  font-size: 0.75rem;
+  color: var(--afford-muted);
+  margin-top: 16px;
+  line-height: 1.4;
+}
+
+.afford-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: #334155;
+}
+
+.afford-check input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.afford-back {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.afford-back:hover {
+  text-decoration: underline;
+}
+
+/* Modal reuse pattern from styles.css — minimal */
+.afford-modal[aria-hidden="true"] {
+  display: none;
+}
+
+.afford-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+
+.afford-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.afford-modal-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.afford-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--afford-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.afford-modal-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.afford-modal-sub {
+  font-size: 0.85rem;
+  color: var(--afford-muted);
+  margin-top: 4px;
+}
+
+.afford-modal-body {
+  padding: 16px 20px 20px;
+}
+
+.afford-grid-2 {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 520px) {
+  .afford-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.afford-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--afford-muted);
+}
+
+.msg.bad {
+  color: #b91c1c;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.msg.warn {
+  color: #b45309;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}

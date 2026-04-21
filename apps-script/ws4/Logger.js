@@ -205,7 +205,11 @@ function upsertLeadRun_(payload) {
 }
 
 // ---- Email Quote ----
-const EMAIL_SENDER_NAME = 'NICE Mortgage Calculator';
+// Use GmailApp (not MailApp) for `from` with a "Send mail as" alias on the deploying user.
+const EMAIL_SENDER_NAME = 'AZM Lending Calculator';
+const EMAIL_FROM_ALIAS = 'noreply@myazm.com';
+/** Public https URL to your logo. Point at the same file you use on the live site. */
+const QUOTE_EMAIL_LOGO_URL = 'https://myazm.com/wp-content/uploads/2025/11/AZMLending2025.png';
 
 function sendQuote_(payload) {
   try {
@@ -221,56 +225,76 @@ function sendQuote_(payload) {
 
     const programUI = inputs.programUI || '';
     const txn = (inputs.txn || '').toString();
-    const value = inputs.value;
-    const loan = inputs.loan;
-    const equity = inputs.equity;
-    const zip = (payload.subjectZip || inputs.subjectZip || '').toString().replace(/\D/g, '').slice(0, 5);
-    const fico = inputs.ficoEntered ?? inputs.fico;
-
-    const isPurchase = (txn === 'PURCHASE');
-    const valueLabel = isPurchase ? 'Purchase Price ($)' : 'Property Value ($)';
-    const equityLabel = isPurchase ? 'Down Payment ($)' : 'Equity ($)';
+    const termMonths = Number(inputs.term) || 360;
+    const progName = { CONV: 'Conventional', FHA: 'FHA', VA: 'VA' }[programUI] || programUI;
+    const txnU = (txn || '').toUpperCase();
+    var purpose = 'Purchase';
+    if (txnU === 'PURCHASE' || txnU === 'PUR') purpose = 'Purchase';
+    else if (txnU === 'REFINANCE' || txnU === 'REFI' || txnU === 'RATE_TERM' || txnU === 'RATE-TERM' || txnU === 'CASHOUT') purpose = 'Refinance';
+    else if (txn) purpose = txn.replace(/\w+/g, function (w) { return w.charAt(0) + w.slice(1).toLowerCase(); });
+    var y = termMonths / 12;
+    var termLabel = (y >= 1 && Math.abs(y - Math.round(y)) < 1e-6) ? (Math.round(y) + ' Year Fixed') : (termMonths + '-month');
+    const programClient = progName
+      ? (progName + ' ' + purpose + ' ' + termLabel).replace(/\s+/g, ' ').trim()
+      : '—';
 
     const fmtUSD = function(n) { return (typeof n === 'number' && isFinite(n)) ? '$' + Math.round(n).toLocaleString() : '—'; };
     const fmtRate = function(r) { return (typeof r === 'number' && isFinite(r)) ? (r).toFixed(3).replace(/\.?0+$/, '') + '%' : '—'; };
+    const aprN = (card && card.apr != null) ? Number(card.apr) : NaN;
+    const aprDisplay = (isFinite(aprN)) ? fmtRate(aprN) : '—';
+    const totalHousing = (Number(card.pi) || 0) + (Number(card.mi) || 0) + (Number(card.taxesM) || 0) + (Number(card.insM) || 0) + (Number(card.hoaM) || 0);
 
+    const preheader = 'Your mortgage rate quote from AZM Lending. Open for details.';
+    const firstName = ((leadMeta.first || '') + '').toString().replace(/\s+/g, ' ').trim().split(/\s/)[0] || '';
+    const greetLine = firstName
+      ? ('Hi ' + firstName + ", here's the quote you requested")
+      : "Hi, here's the quote you requested";
+    const logoBlock = (QUOTE_EMAIL_LOGO_URL && String(QUOTE_EMAIL_LOGO_URL).indexOf('http') === 0)
+      ? ('<div style="margin:0 0 16px 0"><img src="' + QUOTE_EMAIL_LOGO_URL + '" alt="AZM Lending" width="60" style="height:auto;display:block;border:0" /></div>')
+      : '';
     const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>' +
-      'body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#0f172a;max-width:520px;margin:0 auto;padding:24px;}' +
+      'body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#0f172a;background:#f1f5f9;margin:0;padding:32px 16px;}' +
+      '.wrap{max-width:360px;margin:0 auto;}' +
       'h1{font-size:20px;margin:0 0 8px;color:#0b1220;}' +
       '.sub{font-size:14px;color:#64748b;margin-bottom:20px;}' +
-      'table{width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;}' +
-      'th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #e2e8f0;}' +
-      'th{background:#f8fafc;font-size:13px;color:#475569;}' +
-      'td:last-child{font-weight:700;color:#0b1220;}' +
-      'tr:last-child td{border-bottom:none;}' +
+      '.card{border:1px solid #cbd5e1;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.06);}' +
+      'table{width:100%;border-collapse:collapse;}' +
+      'th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;}' +
+      'th{background:#f8fafc;font-size:12px;color:#475569;font-weight:600;width:46%;}' +
+      'td:last-child{font-weight:700;color:#0b1220;font-size:14px;}' +
+      'tr:last-child th,tr:last-child td{border-bottom:none;}' +
       '.footer{font-size:12px;color:#94a3b8;margin-top:20px;}' +
+      '.contact{font-size:13px;color:#475569;margin-top:18px;line-height:1.6;}' +
+      '.contact a{color:#0d9488;text-decoration:underline;}' +
       '</style></head><body>' +
+      '<div style="display:none;font-size:1px;color:#f1f5f9;line-height:1px;max-height:0;max-width:0;overflow:hidden;opacity:0;">' + preheader + '</div>' +
+      '<div class="wrap">' +
+      logoBlock +
       '<h1>Your Mortgage Quote</h1>' +
-      '<p class="sub">' + (leadMeta.first || leadMeta.last ? (leadMeta.first + ' ' + leadMeta.last).trim() + ', ' : '') + 'here is the quote you requested.</p>' +
-      '<table>' +
-      '<tr><th>Program</th><td>' + (programUI || '—') + ' • ' + (txn || '—') + '</td></tr>' +
-      '<tr><th>Property ZIP</th><td>' + (zip || '—') + '</td></tr>' +
-      '<tr><th>' + valueLabel + '</th><td>' + fmtUSD(value) + '</td></tr>' +
-      '<tr><th>' + equityLabel + '</th><td>' + fmtUSD(equity) + '</td></tr>' +
-      '<tr><th>Loan Amount</th><td>' + fmtUSD(loan) + '</td></tr>' +
-      '<tr><th>FICO</th><td>' + (fico !== undefined ? fico : '—') + '</td></tr>' +
+      '<p class="sub">' + greetLine + '</p>' +
+      '<div class="card"><table role="presentation">' +
+      '<tr><th>Program</th><td>' + programClient + '</td></tr>' +
       '<tr><th>Interest Rate</th><td>' + fmtRate(quote.noteRate) + '</td></tr>' +
-      '<tr><th>Financed Loan</th><td>' + fmtUSD(card.loanCalc) + '</td></tr>' +
-      '<tr><th>P&I</th><td>' + fmtUSD(card.pi) + '/mo</td></tr>' +
-      '<tr><th>PMI / MIP</th><td>' + fmtUSD(card.mi) + '/mo</td></tr>' +
-      '<tr><th>Taxes</th><td>' + fmtUSD(card.taxesM) + '/mo</td></tr>' +
-      '<tr><th>Insurance</th><td>' + fmtUSD(card.insM) + '/mo</td></tr>' +
+      '<tr><th>APR</th><td>' + aprDisplay + '</td></tr>' +
+      '<tr><th>Financed Loan Amount</th><td>' + fmtUSD(card.loanCalc) + '</td></tr>' +
+      '<tr><th>Total Monthly Payment</th><td>' + fmtUSD(totalHousing) + '/mo</td></tr>' +
+      '<tr><th>Principal &amp; Interest</th><td>' + fmtUSD(card.pi) + '/mo</td></tr>' +
+      '<tr><th>Mortgage Insurance</th><td>' + fmtUSD(card.mi) + '/mo</td></tr>' +
+      '<tr><th>Property Taxes</th><td>' + fmtUSD(card.taxesM) + '/mo</td></tr>' +
+      '<tr><th>Home Insurance</th><td>' + fmtUSD(card.insM) + '/mo</td></tr>' +
       '<tr><th>HOA</th><td>' + fmtUSD(card.hoaM) + '/mo</td></tr>' +
-      '<tr><th>Total Housing Payment</th><td>' + fmtUSD((Number(card.pi)||0)+(Number(card.mi)||0)+(Number(card.taxesM)||0)+(Number(card.insM)||0)+(Number(card.hoaM)||0)) + '/mo</td></tr>' +
-      '</table>' +
-      '<p class="footer">This quote was generated by the NICE Mortgage Calculator. Rates and terms are subject to change.</p>' +
-      '</body></html>';
+      '</table></div>' +
+      '<p class="contact">AZM Lending — ' +
+      '<a href="tel:+16232334335">623-233-4335</a> · ' +
+      '<a href="mailto:info@myazm.com">info@myazm.com</a> · ' +
+      '<a href="https://myazm.com/azm-booking/" target="_blank" rel="noopener noreferrer">Schedule a call</a></p>' +
+      '<p class="footer">This quote was generated by AZM Lending. Rates and terms are subject to change.</p>' +
+      '</div></body></html>';
 
-    MailApp.sendEmail({
-      to: email,
-      subject: 'Your Mortgage Quote – NICE Mortgage',
-      htmlBody: html,
-      name: EMAIL_SENDER_NAME
+    GmailApp.sendEmail(email, 'Your mortgage quote from AZM Lending', 'View this message in a mail client that shows HTML to see your full quote.', {
+      from: EMAIL_FROM_ALIAS,
+      name: EMAIL_SENDER_NAME,
+      htmlBody: html
     });
 
     return { ok: true, sent: true };

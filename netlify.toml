@@ -1,8 +1,37 @@
-# AZM Lending Calculator - Netlify config
-# Deploy: drag this folder to Netlify, or connect via Git
+# AZM Lending Calculator - Netlify
+# Builds dist/ via npm run build:dist (afford/, live/, root index)
 
 [build]
-  publish = "."
-  command = ""
+  command = "npm run build:dist"
+  publish = "dist"
 
-# Serve index.html for root; static assets (css, js, assets/) served as-is
+[[redirects]]
+  from = "/afford"
+  to = "/afford/"
+  status = 301
+
+[[redirects]]
+  from = "/live"
+  to = "/live/"
+  status = 301
+
+# Legacy filenames -> canonical paths
+[[redirects]]
+  from = "/affordweb.html"
+  to = "/afford/"
+  status = 301
+
+[[redirects]]
+  from = "/affordfunnel.html"
+  to = "/afford/"
+  status = 301
+
+[[redirects]]
+  from = "/simple.html"
+  to = "/live/"
+  status = 301
+
+[[redirects]]
+  from = "/simple-standalone.html"
+  to = "/live/"
+  status = 301

@@ -53,7 +53,8 @@ function priceScenario_(payload, opts){
     totalLoan = va.totalLoan; meta.va = va;
   } else {
     const showPMI = (inputs.pmiToggle === true || String(inputs.pmiToggle).toLowerCase() === 'yes');
-    if (showPMI && ltv >= 80) {
+    // Conventional monthly PMI: LTV must be *above* 80% (at 80% = 20% down, no PMI)
+    if (showPMI && ltv > 80) {
       const pmi = (typeof pmiAnnualRate_ === 'function')
         ? pmiAnnualRate_({
             ltvPct: ltv, fico: fico,
@@ -133,7 +134,7 @@ function priceCurveCore_(inputs, market, opts){
     totalLoan = va.totalLoan; miAnnualPct = 0;
   } else {
     const showPMI = (inputs.pmiToggle === true || String(inputs.pmiToggle).toLowerCase() === 'yes');
-    if (showPMI && ltv >= 80) {
+    if (showPMI && ltv > 80) {
       const pmi = (typeof pmiAnnualRate_ === 'function')
         ? pmiAnnualRate_({
             ltvPct: ltv, fico: fico,

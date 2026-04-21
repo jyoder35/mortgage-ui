@@ -31,5 +31,6 @@ private/
 *.local.code-workspace
 
 # Google Apps Script (clasp) — scriptId is local / optional to share
+apps-script/ws1/.clasp.json
 apps-script/ws2/.clasp.json
 apps-script/ws4/.clasp.json

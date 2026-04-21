@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>AZM Lending - Live Pricing Calculator</title>
   <!-- Correct CSS include -->
@@ -245,7 +246,7 @@
           <span id="recalcDot" class="dot" aria-hidden="true"></span>
           Re‑Calculate
         </button>
-        <a id="btnBookCall" class="btn" href="https://connect.theloportal.com/widget/bookings/azm-all" target="_blank" rel="noopener noreferrer">Book a Call</a>
+        <a id="btnBookCall" class="btn" href="https://myazm.com/azm-booking/" target="_blank" rel="noopener noreferrer">Book a Call</a>
         <button id="btnReset" class="btn btn-ghost">Reset</button>
       </div>
       <div class="footer-status">
@@ -325,7 +326,7 @@
       <header class="modal-header">
         <div>
           <div id="emailTitle" class="modal-title">Email Me This Quote</div>
-          <div class="modal-subtitle">Confirm your email to receive a formatted copy of your mortgage quote.</div>
+          <div class="modal-subtitle">Please confirm your email address to receive a formatted copy of your mortgage quote.</div>
         </div>
         <button id="closeEmail" class="btn-icon" aria-label="Close">✕</button>
       </header>
@@ -333,6 +334,7 @@
         <div class="form-field">
           <label for="emailConfirm">Email address</label>
           <input id="emailConfirm" type="email" autocomplete="email" placeholder="you@example.com" />
+          <p class="footer-note-small">Check spam folder if you don&rsquo;t see this email within 5 minutes.</p>
           <div id="emailConfirmErr" class="msg bad" style="display:none;"></div>
         </div>
         <div id="emailErr" class="msg bad" style="display:none; margin-top:8px;"></div>
