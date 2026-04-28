@@ -462,7 +462,41 @@ html.azm-iframe-embed #affordFormView .adv-block-form{
   padding-top:10px !important;
 }
 html.azm-iframe-embed .afford-recommend.visible{ padding:11px !important; }
-html.azm-iframe-embed .recommend-btns{ gap:8px; margin-top:11px !important; }
+html.azm-iframe-embed #calcBtnGroup.recommend-btns{ margin-top:6px !important; }
+
+/* afford “We suggest” copy only in card; program buttons in sticky footer when embedded */
+.recommend-program-hint{
+  margin:0 0 4px;
+  line-height:1.45;
+  color:#475569;
+  font-size:13px;
+}
+html.azm-iframe-embed .recommend-program-hint{
+  font-size:12px !important;
+}
+html.azm-iframe-embed .afford-footer-prog-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  max-width:920px;
+  margin:0 auto;
+}
+html.azm-iframe-embed #affordEmbedFooter.footer-bar{
+  height:auto;
+  min-height:var(--footer-h);
+  padding:6px 0 8px;
+}
+html.azm-iframe-embed #affordStickyCalc{
+  width:100%;
+}
+html.azm-iframe-embed .afford-embed-footer .footer-inner{
+  flex-wrap:wrap;
+  align-items:center;
+  row-gap:4px;
+}
 html.azm-iframe-embed #affordCalcErr,
 html.azm-iframe-embed #affordCalcErrResults{ margin-top:10px !important; margin-bottom:9px !important; }
 
@@ -479,3 +513,33 @@ html.azm-iframe-embed .afford-embed-footer .footer-inner{
   justify-content:center;
 }
 
+/* Live Estimate (simple) in iframe — minimal pad above fixed Get Rate footer */
+html.azm-iframe-embed main#simpleMain.app{
+  padding-top:6px;
+  padding-bottom:calc(var(--footer-h) + 4px);
+}
+@media (max-width:600px){
+  html.azm-iframe-embed main#simpleMain.app{
+    padding-bottom:calc(var(--footer-h) + 10px);
+  }
+}
+html.azm-iframe-embed main#simpleMain .panel{
+  margin-bottom:6px !important;
+  padding:10px !important;
+}
+html.azm-iframe-embed main#simpleMain .panel-title{
+  margin-bottom:5px !important;
+  font-size:0.92rem !important;
+}
+html.azm-iframe-embed main#simpleMain .grid{ gap:7px !important; }
+
+html.azm-iframe-embed body[data-page="live"] footer.footer-bar{
+  box-shadow:0 -8px 24px rgba(15,23,42,.08);
+}
+html.azm-iframe-embed body[data-page="live"] #resultsPanel .result-human-legal{
+  margin-top:6px !important;
+  padding-top:6px !important;
+}
+html.azm-iframe-embed body[data-page="live"] #resultsPanel .result-human{
+  margin-bottom:4px !important;
+}

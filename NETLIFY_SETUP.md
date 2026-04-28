@@ -87,3 +87,41 @@ On the WordPress page, add **Custom HTML** (same page as the iframe) or **footer
 ```
 
 If you change the Netlify hostname, update `NET` accordingly. Adjust `getElementById` if your iframe id differs (`azm-afford-iframe`, `azm-live-iframe`, or `azm-calc-iframe`).
+
+### `/live/` (Live Estimate): parent wrapper on WordPress / Elementor
+
+Grey bands and **Get Rate hiding off-screen** are often caused by **the parent**, not Netlify:
+
+- **`min-height: 70vh` or `vh` fractions on the iframe** — reserves empty vertical space inside the iframe’s box (gray shows behind the iframe in the section).
+- **A tall Elementor section** around the iframe while the iframe is short enough to reveal the footer *inside* the iframe — mismatch between section background and iframe height listener.
+
+Use a **narrow shell**, let `postMessage` set **`iframe.style.height`** in **pixels**, and avoid locking the iframe to viewport height:
+
+```html
+<div class="azm-calc-shell" style="max-width:980px;margin:0 auto;line-height:0;">
+  <iframe
+    id="azm-live-iframe"
+    title="AZM Live Estimate"
+    src="https://azmcalculator.netlify.app/live/"
+    width="980"
+    height="560"
+    loading="lazy"
+    style="display:block;width:100%;border:0;min-height:0;height:560px;line-height:normal;">
+  </iframe>
+</div>
+```
+
+Then add **the same resize script** from this doc (the `window.addMessageListener` block targeting `document.getElementById("azm-live-iframe")`).
+
+Recommended **additional CSS** in WordPress (Appearance → Customize → Additional CSS, or Elementor):
+
+```css
+/* Do not stretch the iframe to a fraction of viewport — that hides the fixed Get Rate footer */
+.azm-calc-shell iframe#azm-live-iframe {
+  min-height: 0 !important;
+}
+```
+
+If Elementor adds extra padding below the iframe, reduce **section Bottom padding / min-height** for that row, or set that section **`min-height: 0`**.
+
+Permission note: edits under **`azmcalculator.netlify.app`** are in **this repo**; **wrapper + CSS live on WordPress** — whoever can edit WP should paste/update the snippets above so parent layout matches `/live/` height.

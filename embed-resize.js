@@ -20,19 +20,50 @@
 
     document.documentElement.classList.add("azm-iframe-embed");
 
+    /**
+     * Height for postMessage — anchored to scrollable columns (<main>),
+     * ignores position:fixed (footer/toast). Clamps when html scrollHeight is
+     * artificially larger than visible layout (common /live iframe issue).
+     */
     function measuredHeightPx() {
-      const e = document.documentElement;
+      const scrollY = window.scrollY || 0;
       const b = document.body;
-      if (!e || !b) return 480;
-      const h = Math.ceil(
+      if (!b) return 480;
+
+      let mainBottom = 0;
+      document.querySelectorAll("main.container.app").forEach((main) => {
+        if (window.getComputedStyle(main).display === "none") return;
+        const r = main.getBoundingClientRect();
+        mainBottom = Math.max(mainBottom, Math.ceil(r.bottom + scrollY));
+      });
+
+      let flowBottom = 0;
+      for (let i = 0; i < b.children.length; i++) {
+        const node = b.children[i];
+        if (!(node instanceof Element)) continue;
+        const cs = window.getComputedStyle(node);
+        if (cs.display === "none" || cs.visibility === "hidden") continue;
+        if (cs.position === "fixed") continue;
+        const r = node.getBoundingClientRect();
+        flowBottom = Math.max(flowBottom, Math.ceil(r.bottom + scrollY));
+      }
+
+      const scrollH = Math.ceil(
         Math.max(
-          e.scrollHeight,
-          e.getBoundingClientRect().height || 0,
-          b.scrollHeight,
-          b.offsetHeight
+          document.documentElement.scrollHeight,
+          b.scrollHeight || 0,
+          b.offsetHeight || 0
         )
       );
-      return Math.max(h, 240);
+
+      const anchored = Math.max(mainBottom, flowBottom);
+      let h =
+        anchored > 80 ? anchored + 8 : scrollH;
+      /* html/body min-height quirks can inflate scrollH — trust layout anchors when sane. */
+      if (anchored > 80 && scrollH > anchored + 32) {
+        h = anchored + 8;
+      }
+      return Math.max(Math.ceil(h), 200);
     }
 
     let debounceTimer;
@@ -73,6 +104,11 @@
       const ro = new ResizeObserver(() => schedule());
       ro.observe(document.documentElement);
       if (document.body) ro.observe(document.body);
+      /** Live / afford: shrink when switching form ↔ results (#simpleMain grows). */
+      const mainRoots = document.querySelectorAll(
+        "#simpleMain, #affordFormView, #affordResultsView, #resultsPanel"
+      );
+      mainRoots.forEach((el) => ro.observe(el));
     }
 
     notifyNow();
