@@ -224,6 +224,23 @@
 
   </main>
 
+  <!-- Sticky CTAs when embedded (myazm): mirrors primary actions -->
+  <footer id="affordEmbedFooter" class="footer-bar afford-embed-footer" role="contentinfo" aria-label="Primary actions">
+    <div class="container footer-inner">
+      <div class="footer-buttons afford-sticky-stack" id="affordStickyForm" aria-label="Afford calculator">
+        <button type="button" class="btn btn-primary" id="btnCalcSticky">See how much I can afford</button>
+        <button type="button" class="btn" id="btnResetSticky">Reset</button>
+      </div>
+      <div class="footer-buttons afford-sticky-stack" id="affordStickyLead" style="display:none;" aria-label="Next step">
+        <button type="button" class="btn btn-primary" id="btnOpenLeadSticky">Continue</button>
+        <button type="button" class="btn" id="btnEditScenarioSticky">Edit scenario</button>
+      </div>
+      <div class="footer-buttons afford-sticky-stack" id="affordStickyCalc" style="display:none;" aria-label="Live estimate">
+        <button type="button" class="btn btn-primary" id="btnStickySuggestedCalc">Live estimate</button>
+      </div>
+    </div>
+  </footer>
+
   <div id="toastHost" class="toast-host" aria-live="polite"></div>
 
   <!-- Lead modal -->

@@ -63,6 +63,7 @@ Then browse e.g. `http://localhost:4179/` and `/afford/`, `/live/`. Alternate: `
 
 1. Give your iframe an **id** (example: `azm-afford-iframe`).
 2. Set **`src`** e.g. `https://azmcalculator.netlify.app/afford/` (resize script uses iframe detection; append `?embed=0` to disable resizing if needed).
+3. **Avoid a large CSS `min-height` on the iframe** (for example avoid `70vh`) — that reserves empty space below the calculator and hides the footer **Get Rate** bar. Prefer `width:100%`, optional `max-width`, and `min-height:0` so the listener-driven `height` is the only constraint.
 
 On the WordPress page, add **Custom HTML** (same page as the iframe) or **footer code** with:
 

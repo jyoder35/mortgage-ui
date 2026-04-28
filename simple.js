@@ -57,6 +57,14 @@
     return d.length >= 5 ? d.slice(0, 5) : "";
   }
 
+  function notifyParentIframeHeight() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (typeof window.__azmIframeNotifyHeight === "function") window.__azmIframeNotifyHeight();
+      });
+    });
+  }
+
   function toast(msg, type = "info") {
     const host = $("toastHost");
     if (!host) return;
@@ -85,6 +93,7 @@
     if (editBtn) editBtn.style.display = "none";
     $("btnRecalc").style.display = "";
     window.scrollTo({ top: 0, behavior: "smooth" });
+    notifyParentIframeHeight();
   }
 
   function showResultsPanel() {
@@ -94,6 +103,7 @@
     if (editBtn) editBtn.style.display = "";
     $("btnRecalc").style.display = "none";
     window.scrollTo({ top: 0, behavior: "smooth" });
+    notifyParentIframeHeight();
   }
 
   // ── Step badge / subheader ────────────────────────────────────────────────────
@@ -126,7 +136,7 @@
       badge.style.display = "";
       badge.textContent = "Step 2 of 3";
     }
-    if (sub) sub.textContent = "Step 2: Verify and edit specifics to see live results of your loan scenario.";
+    if (sub) sub.textContent = "Verify and edit specifics to see live results of your loan scenario.";
   }
 
   // ── State & ZIP ───────────────────────────────────────────────────────────────

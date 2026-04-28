@@ -8,6 +8,12 @@
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
 body{ margin:0; font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial; color:var(--text); background:var(--bg); }
+/* Embedded in WP iframe: do not stretch page to iframe height — that inflated scrollHeight and left huge gray bands below panels. */
+html.azm-iframe-embed,
+html.azm-iframe-embed body{
+  height:auto !important;
+  min-height:0 !important;
+}
 .container{ max-width:1100px; margin:0 auto; padding:16px; }
 .topbar{ position:sticky; top:0; z-index:5; background:rgba(248,250,252,.8); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); }
 .topbar .container{ padding-left:24px; padding-right:24px; padding-bottom:10px; }
@@ -343,4 +349,133 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
 
 /* "3% minimum…" hint under the down-payment panel */
 .dp-min-note{ font-size:12px; color:var(--muted); margin-top:10px; line-height:1.4; }
+
+/* ── Embedded (myazm iframe): ~20% denser rhythm across afford web + Live — same proportional scale ── */
+html.azm-iframe-embed{
+  --footer-h:56px;
+  --footer-pad:8px;
+  --radius:12px;
+  --shadow:0 4px 14px rgba(15,23,42,.06);
+}
+html.azm-iframe-embed body{
+  font-size:13px;
+  line-height:1.38;
+}
+html.azm-iframe-embed .container{ padding-left:12px; padding-right:12px; }
+html.azm-iframe-embed .topbar .container{
+  padding-bottom:8px; padding-left:14px; padding-right:14px;
+}
+html.azm-iframe-embed .topbar-inner{ gap:14px; }
+html.azm-iframe-embed .topbar h1{ font-size:20px; }
+html.azm-iframe-embed .topbar-sub{ font-size:13px; margin-bottom:4px; }
+html.azm-iframe-embed .topbar-logo{ height:62px; margin-right:14px; }
+@media (max-width:600px){ html.azm-iframe-embed .topbar-logo{ height:50px; } }
+html.azm-iframe-embed .step-badge{ font-size:11px; margin-left:8px; padding:2px 8px; }
+
+html.azm-iframe-embed .app{
+  padding-top:8px;
+  padding-bottom:calc(var(--footer-h) + 14px);
+}
+html.azm-iframe-embed body[data-afford-page="web"] .app.no-footer{
+  padding-bottom:calc(var(--footer-h) + 14px);
+}
+@media (max-width:600px){
+  html.azm-iframe-embed .app{ padding-bottom:calc(var(--footer-h) + 36px); }
+}
+
+html.azm-iframe-embed .panel{ padding:12px; margin-bottom:10px; }
+html.azm-iframe-embed .panel-title{ margin-bottom:8px; }
+html.azm-iframe-embed .grid{ gap:10px; }
+html.azm-iframe-embed .form-field label{ margin-bottom:5px; font-size:12px; }
+html.azm-iframe-embed .form-field input,
+html.azm-iframe-embed .form-field select{
+  padding:8px 11px;
+  border-radius:9px;
+}
+html.azm-iframe-embed .pill{ padding:5px 11px; font-size:13px; }
+html.azm-iframe-embed .pill-toggle{ height:40px; padding:2px; }
+html.azm-iframe-embed .btn{ padding:8px 12px; font-size:13px; }
+html.azm-iframe-embed .footer-bar .footer-buttons .btn,
+html.azm-iframe-embed .footer-bar .footer-buttons button.btn,
+html.azm-iframe-embed .footer-bar .footer-buttons a.btn{
+  font-size:13px;
+}
+html.azm-iframe-embed .chip{ padding:3px 8px; font-size:12px; }
+html.azm-iframe-embed .split-field-row{ gap:10px; }
+html.azm-iframe-embed .field-help{ margin-top:3px; font-size:11px; }
+
+html.azm-iframe-embed .kpi{ padding:10px 11px; }
+html.azm-iframe-embed #resultsPanel.panel{ padding:10px; margin-bottom:0; }
+html.azm-iframe-embed #resultsPanel .kpi-value{ font-size:21px; }
+html.azm-iframe-embed #resultsPanel .panel-title{ margin-bottom:7px; }
+html.azm-iframe-embed #resultsPanel .result-card .card-title{
+  padding:7px 10px;
+  font-size:0.88rem;
+}
+html.azm-iframe-embed #resultsPanel .result-card .card-body{ padding:7px 10px 9px; }
+html.azm-iframe-embed #resultsPanel .kv{ padding:6px 0; }
+html.azm-iframe-embed #resultsPanel .result-human-legal{ margin-top:7px; padding-top:7px; }
+html.azm-iframe-embed #resultsPanel .quote-generated-line{
+  margin-top:5px; font-size:11px;
+}
+html.azm-iframe-embed #simpleBanner.msg{ margin-bottom:11px !important; }
+
+/* affordweb funnel: tighter cards + gauges (proportion matches form view) */
+html.azm-iframe-embed body[data-afford-page="web"] .afford-grid{
+  gap:12px 12px !important;
+}
+html.azm-iframe-embed body[data-afford-page="web"] .afford-panel-tight{
+  padding:11px 12px !important;
+  margin-bottom:9px !important;
+}
+html.azm-iframe-embed body[data-afford-page="web"] .afford-result-box{
+  padding:12px !important;
+}
+html.azm-iframe-embed body[data-afford-page="web"] .afford-result-box .big{
+  font-size:2.2rem !important;
+  margin-bottom:2px !important;
+}
+html.azm-iframe-embed body[data-afford-page="web"] .afford-result-box .price-lbl{
+  font-size:11px !important;
+}
+html.azm-iframe-embed body[data-afford-page="web"] .afford-result-box .result-rows{
+  margin-top:11px !important;
+  gap:7px !important;
+}
+
+html.azm-iframe-embed .dti-readout{ font-size:16px; margin:0 0 2px; gap:8px; }
+html.azm-iframe-embed .dti-readout .dti-value{ font-size:19px; }
+html.azm-iframe-embed .dti-readout .dti-label{ font-size:14px; }
+html.azm-iframe-embed .dti-range{ margin:7px 0 3px; }
+html.azm-iframe-embed .dti-range::-webkit-slider-thumb{
+  width:18px; height:18px;
+}
+html.azm-iframe-embed .dti-range::-moz-range-thumb{
+  width:18px; height:18px;
+}
+
+html.azm-iframe-embed .helper-notes{ margin:0 0 8px; font-size:12px; }
+html.azm-iframe-embed .adv-toggle{ font-size:14px; }
+html.azm-iframe-embed .adv-body{ margin-top:11px !important; padding-top:11px !important; }
+html.azm-iframe-embed #affordFormView .adv-block-form{
+  margin-top:10px !important;
+  padding-top:10px !important;
+}
+html.azm-iframe-embed .afford-recommend.visible{ padding:11px !important; }
+html.azm-iframe-embed .recommend-btns{ gap:8px; margin-top:11px !important; }
+html.azm-iframe-embed #affordCalcErr,
+html.azm-iframe-embed #affordCalcErrResults{ margin-top:10px !important; margin-bottom:9px !important; }
+
+html.azm-iframe-embed body[data-afford-page="web"] #affordFormView .form-inline-actions,
+html.azm-iframe-embed body[data-afford-page="web"] #funnelNext .form-inline-actions{
+  display:none !important;
+}
+
+#affordEmbedFooter{ display:none !important; }
+html.azm-iframe-embed body[data-afford-page="web"] #affordEmbedFooter{
+  display:flex !important;
+}
+html.azm-iframe-embed .afford-embed-footer .footer-inner{
+  justify-content:center;
+}
 

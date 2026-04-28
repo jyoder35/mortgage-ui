@@ -1,8 +1,10 @@
 /**
- * Iframe resize helper: sends document height to parent (e.g. myazm.com).
- * Parent MUST verify message origin is your Netlify URL before resizing.
+ * Iframe resize helper: notifies parent window of accurate document height (e.g. myazm.com).
+ * Parent MUST verify message origin matches your Netlify URL.
  *
- * Enabled when: ?embed=1 on the iframe src, or embedded in iframe (unless ?embed=0).
+ * When embedded: sets html class so body does not stretch to fill the iframe (removes gray dead zone).
+ *
+ * Enabled in iframe unless ?embed=0.
  */
 (function () {
   try {
@@ -13,47 +15,59 @@
     } catch (_) {
       inIframe = true;
     }
-    /** Opt out only; iframe presence alone turns this on (?embed=0 to disable). */
     if (params.get("embed") === "0") return;
     if (!inIframe) return;
+
+    document.documentElement.classList.add("azm-iframe-embed");
 
     function measuredHeightPx() {
       const e = document.documentElement;
       const b = document.body;
-      const hEl = e
-        ? Math.max(e.scrollHeight, e.offsetHeight, e.clientHeight || 0)
-        : 0;
-      const hBody = b
-        ? Math.max(b.scrollHeight, b.offsetHeight, b.scrollHeight || 0)
-        : 0;
-      const raw = Math.ceil(Math.max(hEl, hBody));
-      const vp = window.innerHeight || 600;
-      const floorVp = vp * 1; /* hint: ~minimum one viewport tall */
-      return Math.max(raw, Math.ceil(floorVp));
+      if (!e || !b) return 480;
+      const h = Math.ceil(
+        Math.max(
+          e.scrollHeight,
+          e.getBoundingClientRect().height || 0,
+          b.scrollHeight,
+          b.offsetHeight
+        )
+      );
+      return Math.max(h, 240);
     }
 
     let debounceTimer;
-    function sendOnce() {
-      const height = measuredHeightPx();
+
+    /** Call from app code after SPA-style view swaps (simple.js panels, etc.). */
+    function notifyNow() {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
       const vp = window.innerHeight || 600;
       window.parent.postMessage(
         {
           type: "azm-embed-resize",
-          height,
+          height: measuredHeightPx(),
           viewportHeight: vp,
-          hintMaxVp: Math.ceil(vp * 1.8),
         },
         "*"
       );
     }
 
+    window.__azmIframeNotifyHeight = notifyNow;
+
     function schedule() {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(sendOnce, 80);
+      debounceTimer = setTimeout(notifyNow, 120);
     }
 
     window.addEventListener("load", schedule);
-    window.addEventListener("resize", schedule);
+
+    window.addEventListener(
+      "resize",
+      () => {
+        schedule();
+      },
+      { passive: true }
+    );
 
     if (typeof ResizeObserver !== "undefined") {
       const ro = new ResizeObserver(() => schedule());
@@ -61,9 +75,10 @@
       if (document.body) ro.observe(document.body);
     }
 
-    schedule();
-    setTimeout(sendOnce, 400);
-    setTimeout(sendOnce, 1400);
+    notifyNow();
+    setTimeout(() => notifyNow(), 280);
+    setTimeout(() => notifyNow(), 900);
+    setTimeout(() => notifyNow(), 1800);
   } catch (_) {
     /* ignore */
   }

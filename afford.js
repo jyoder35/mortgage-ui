@@ -705,6 +705,60 @@
     $("recommendBox").classList.add("visible");
     $("recommendBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
     closeLead();
+    syncAffordStickyFooter();
+    notifyParentEmbedHeight();
+  }
+
+  function notifyParentEmbedHeight() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (typeof window.__azmIframeNotifyHeight === "function") window.__azmIframeNotifyHeight();
+      });
+    });
+  }
+
+  function refreshAffordStickyCalcButton() {
+    if (PAGE_VARIANT !== "web" || !embeddedAffordWebsite) return;
+    const group = $("calcBtnGroup");
+    const primary = group && group.querySelector(".btn-primary");
+    const sticky = $("btnStickySuggestedCalc");
+    if (!primary || !sticky) return;
+    sticky.textContent = primary.textContent;
+    sticky.onclick = () => primary.click();
+  }
+
+  /** Sticky footer when affordweb embedded in iframe (paired with compact embed CSS). */
+  function syncAffordStickyFooter() {
+    if (PAGE_VARIANT !== "web" || !embeddedAffordWebsite || !$("affordEmbedFooter")) return;
+
+    const formViewEl = $("affordFormView");
+    const isForm = formViewEl && window.getComputedStyle(formViewEl).display !== "none";
+
+    const stackForm = $("affordStickyForm");
+    const stackLead = $("affordStickyLead");
+    const stackCalc = $("affordStickyCalc");
+    if (!stackForm || !stackLead || !stackCalc) return;
+
+    stackForm.style.display = "none";
+    stackLead.style.display = "none";
+    stackCalc.style.display = "none";
+
+    if (isForm) {
+      stackForm.style.display = "flex";
+      return;
+    }
+
+    const fn = $("funnelNext");
+    const leadVisible = fn && window.getComputedStyle(fn).display !== "none";
+    const rec = $("recommendBox");
+    const recVisible = rec && rec.classList.contains("visible");
+
+    if (recVisible) {
+      stackCalc.style.display = "flex";
+      refreshAffordStickyCalcButton();
+    } else if (leadVisible) {
+      stackLead.style.display = "flex";
+    }
   }
 
   function syncAffordWebEmbeddedHeader(which) {
@@ -722,12 +776,16 @@
     $("affordResultsView").style.display = "none";
     syncAffordWebEmbeddedHeader("form");
     window.scrollTo({ top: 0, behavior: "smooth" });
+    syncAffordStickyFooter();
+    notifyParentEmbedHeight();
   }
   function showResultsView() {
     $("affordFormView").style.display = "none";
     $("affordResultsView").style.display = "";
     syncAffordWebEmbeddedHeader("results");
     window.scrollTo({ top: 0, behavior: "smooth" });
+    syncAffordStickyFooter();
+    notifyParentEmbedHeight();
   }
   function goSimpleWithProgram(prog) {
     window.location.href = "/live/?funnel=1&program=" + prog;
@@ -793,6 +851,7 @@
         warnEl.style.display = "none";
       }
     }
+    refreshAffordStickyCalcButton();
   }
 
   function resetForm() {
@@ -913,6 +972,13 @@
   $("btnEditScenario").addEventListener("click", showFormView);
   $("btnOpenLead").addEventListener("click", openLead);
 
+  if ($("btnCalcSticky")) {
+    $("btnCalcSticky").addEventListener("click", () => $("btnCalc").click());
+    $("btnResetSticky").addEventListener("click", () => $("btnReset").click());
+    $("btnOpenLeadSticky").addEventListener("click", () => $("btnOpenLead").click());
+    $("btnEditScenarioSticky").addEventListener("click", () => $("btnEditScenario").click());
+  }
+
   function wireAdvToggle(toggleId, bodyId) {
     const t = $(toggleId);
     if (!t) return;
@@ -955,4 +1021,10 @@
   $("leadClose").addEventListener("click", closeLead);
   $("leadCancel").addEventListener("click", closeLead);
   $("leadSubmit").addEventListener("click", submitLead);
+
+  /* embed-resize.js runs after this file; reschedule sticky sync once html.azm-iframe-embed is set */
+  setTimeout(() => {
+    syncAffordStickyFooter();
+    notifyParentEmbedHeight();
+  }, 0);
 })();
