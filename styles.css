@@ -250,9 +250,7 @@ a.btn{ text-decoration:none; color:inherit; display:inline-flex; align-items:cen
 #affordResultsView .dti-range{ margin:6px 0 0; }
 @media (max-width:600px){ .app.no-footer{ padding-bottom:24px; } }
 
-/* Standalone web embed: host page owns the chrome, so hide our topbar. */
-body[data-afford-page="web"] header.topbar{ display:none; }
-body[data-afford-page="web"] .step-badge{ display:none; }
+/* affordweb keeps top bar + badges; when embedded on myazm.com, afford.js adjusts copy and may hide #funnelBadge. */
 
 .field-help{ font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4; }
 
