@@ -1,0 +1,6 @@
+---
+description: Production Netlify hostname for mortgage-ui
+globs: "**/*.{md,html,js,json}"
+---
+
+The deployed site for this project is **https://azmcalculator.netlify.app** unless the user explicitly says they renamed or moved it. Prefer this URL in examples and deploy instructions; do not use `YOUR_SITE.netlify.app` placeholders for this repo.

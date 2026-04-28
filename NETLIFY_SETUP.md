@@ -41,8 +41,48 @@
 
 ## What Gets Deployed
 
-- Output is **`dist/`** after `npm run build:dist`: root `index.html`, `afford/index.html`, `live/index.html`, shared `styles.css`, `app.js`, `afford.js`, `simple.js`, `shared-mortgage-data.js`, `assets/` (including logo)
+- Output is **`dist/`** after `npm run build:dist`: root `index.html`, `afford/index.html`, `live/index.html`, shared `styles.css`, `embed-resize.js`, `app.js`, `afford.js`, `simple.js`, `shared-mortgage-data.js`, `assets/` (including logo)
 - `netlify.toml` (config; sets build + legacy redirects to `/afford/` and `/live/`)
 - Source HTML in the repo root stays for editing; **Netlify publishes `dist/` only** when the build command runs
 
-**WordPress iframe examples:** `https://YOUR_SITE.netlify.app/`, `…/afford/`, `…/live/` — use the trailing slash or rely on Netlify redirects.
+**WordPress iframe examples:** `https://azmcalculator.netlify.app/`, `/afford/`, `/live/` — use the trailing slash or rely on Netlify redirects.
+
+Include `embed-resize.js` in the deployed bundle (wired in HTML); it notifies the parent `window` of content height **only when the page is embedded** in another site’s iframe (`?embed=0` disables).
+
+### Local preview (CSS + scripts work reliably)
+
+Opening raw `.html` from disk (**`file://`**) breaks `<base href="/">` asset paths — use a static server instead:
+
+```bash
+npm run preview:dist
+```
+
+Then browse e.g. `http://localhost:4179/` and `/afford/`, `/live/`. Alternate: `npm run build:dist` then `npx serve dist`.
+
+### WordPress: auto-resizing the iframe (`postMessage`)
+
+1. Give your iframe an **id** (example: `azm-afford-iframe`).
+2. Set **`src`** e.g. `https://azmcalculator.netlify.app/afford/` (resize script uses iframe detection; append `?embed=0` to disable resizing if needed).
+
+On the WordPress page, add **Custom HTML** (same page as the iframe) or **footer code** with:
+
+```html
+<script>
+(function () {
+  var NET = "https://azmcalculator.netlify.app"; /* no trailing slash */
+  window.addEventListener("message", function (e) {
+    var o = NET.replace(/\/+$/, "");
+    if (String(e.origin || "").replace(/\/+$/, "") !== o) return;
+    var d = e.data;
+    if (!d || d.type !== "azm-embed-resize" || !(d.height > 0)) return;
+    var ifr =
+      document.getElementById("azm-afford-iframe") ||
+      document.getElementById("azm-live-iframe") ||
+      document.getElementById("azm-calc-iframe");
+    if (ifr) ifr.style.height = d.height + "px";
+  });
+})();
+</script>
+```
+
+If you change the Netlify hostname, update `NET` accordingly. Adjust `getElementById` if your iframe id differs (`azm-afford-iframe`, `azm-live-iframe`, or `azm-calc-iframe`).

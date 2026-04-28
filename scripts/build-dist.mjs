@@ -22,7 +22,7 @@ async function copyFile(srcRel, destRel) {
 
 await fs.cp(path.join(root, "assets"), path.join(dist, "assets"), { recursive: true });
 
-for (const f of ["styles.css", "shared-mortgage-data.js", "afford.js", "simple.js", "app.js"]) {
+for (const f of ["styles.css", "shared-mortgage-data.js", "afford.js", "simple.js", "app.js", "embed-resize.js"]) {
   await copyFile(f, f);
 }
 

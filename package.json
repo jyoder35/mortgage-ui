@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "build:dist": "node scripts/build-dist.mjs",
+    "preview:dist": "npm run build:dist && npx --yes serve dist -p 4179",
     "clasp:login": "clasp login",
     "clasp:pull:ws1": "clasp pull -P apps-script/ws1",
     "clasp:push:ws1": "clasp push -P apps-script/ws1",

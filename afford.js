@@ -11,6 +11,22 @@
     (document.body && document.body.dataset && document.body.dataset.affordPage) ||
     (params.get("funnel") === "1" ? "funnel" : "funnel");
 
+  /** myazm.com iframe or ?embed=1: affordweb header copy without step badges (affordfunnel unchanged). */
+  let embeddedAffordWebsite = false;
+  try {
+    embeddedAffordWebsite =
+      params.get("embed") === "1" || window.self !== window.top;
+  } catch {
+    embeddedAffordWebsite = params.get("embed") === "1";
+  }
+
+  const WEB_EMBEDDED_SUB = {
+    form:
+      "Enter your income, debts, and where you\u2019re buying. You\u2019ll refine numbers on the next screen.",
+    results:
+      "See your estimated maximum home purchase price and adjust settings to see what you can afford.",
+  };
+
   const WS1_RATES_URL =
     "https://script.google.com/macros/s/AKfycbxFUmGP213ag2uV4cey3V2ox0diofarpDKNt0szGrSajVpO8CF_paFN7u_R9cPa4Y3FwA/exec?action=rates";
 
@@ -691,15 +707,26 @@
     closeLead();
   }
 
+  function syncAffordWebEmbeddedHeader(which) {
+    if (PAGE_VARIANT !== "web" || !embeddedAffordWebsite) return;
+    const sub = $("affordSubhead");
+    if (!sub) return;
+    sub.textContent = which === "results" ? WEB_EMBEDDED_SUB.results : WEB_EMBEDDED_SUB.form;
+    const badge = $("funnelBadge");
+    if (badge) badge.style.display = "none";
+  }
+
   function showFormView() {
     syncResultsAdvToForm();
     $("affordFormView").style.display = "";
     $("affordResultsView").style.display = "none";
+    syncAffordWebEmbeddedHeader("form");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function showResultsView() {
     $("affordFormView").style.display = "none";
     $("affordResultsView").style.display = "";
+    syncAffordWebEmbeddedHeader("results");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function goSimpleWithProgram(prog) {
@@ -810,6 +837,7 @@
     const res = $("affordResultsView");
     if (form) form.style.paddingTop = "12px";
     if (res) res.style.paddingTop = "12px";
+    if (embeddedAffordWebsite) syncAffordWebEmbeddedHeader("form");
   }
 
   fillStateSelect();
