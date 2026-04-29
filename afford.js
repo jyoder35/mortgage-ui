@@ -705,7 +705,7 @@
     const statsLine =
       rec.blurb + " Estimated max price about " + fmtUSD(maxForRec) +
       " (loan about " + fmtUSD(loanRec) + ", housing about " + fmtUSD(payRec) + "/mo) using your current scenario.";
-    $("recommendBody").textContent = embeddedAffordWebsite ? leadIn + " " + statsLine : statsLine;
+    $("recommendBody").textContent = embeddedAffordWebsite ? leadIn : statsLine;
 
     $("funnelNext").style.display = "none";
     buildCalcButtons(veteranYes, fico, loanRec, rec.ui);
@@ -750,29 +750,11 @@
 
     const fn = $("funnelNext");
     const leadVisible = fn && window.getComputedStyle(fn).display !== "none";
-    const resView = $("affordResultsView");
     const rec = $("recommendBox");
     const recVisible = rec && rec.classList.contains("visible");
 
-    if (
-      resView &&
-      window.getComputedStyle(resView).display !== "none"
-    ) {
-      resView.setAttribute(
-        "data-afford-results-phase",
-        recVisible ? "rec" : "lead"
-      );
-    }
-
-    /* Recommendation step: calculators only in sticky footer (no duplicate CTAs here). */
-    if (recVisible) {
-      if (foot) foot.classList.add("afford-embed-footer--visible");
-      stackCalc.style.display = "flex";
-      return;
-    }
-
-    /* “Want tailored rates?”: Continue / Edit stay in-panel — sticky row duplicated them + added dead space */
-    if (leadVisible) {
+    /* In-panel CTAs only (form, lead, recommend). No sticky bar on any results phase. */
+    if (recVisible || leadVisible) {
       if (foot) foot.classList.remove("afford-embed-footer--visible");
       return;
     }
@@ -816,25 +798,7 @@
     return ui === "CONV" ? "Conventional" : ui === "FHA" ? "FHA" : "VA";
   }
 
-  /** When embedded: all calculator CTAs live in #affordProgBtnRow; suggestion box keeps copy only. */
-  function populateAffordStickyProgramButtons(eligibleProgs, suggestedProg, btnLabel) {
-    const row = $("affordProgBtnRow");
-    if (!row) return;
-    row.innerHTML = "";
-    const ordered = [suggestedProg, ...eligibleProgs.filter((x) => x !== suggestedProg)];
-    const seen = new Set();
-    ordered.forEach((p) => {
-      if (seen.has(p)) return;
-      seen.add(p);
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = p === suggestedProg ? "btn btn-primary" : "btn";
-      btn.textContent = btnLabel(p);
-      btn.addEventListener("click", () => goSimpleWithProgram(p));
-      row.appendChild(btn);
-    });
-  }
-
+  /** When embedded: program buttons sit in #recommendBox (same row pattern as “Want tailored rates?”). */
   function buildCalcButtons(veteranYes, fico, estLoan, suggestedProg) {
     const group = $("calcBtnGroup");
     if (!group) return;
@@ -852,8 +816,22 @@
     const embedWeb = PAGE_VARIANT === "web" && embeddedAffordWebsite;
 
     if (embedWeb) {
-      /* Copy + program choice live in recommendBody + sticky footer; no duplicate hint here. */
-      populateAffordStickyProgramButtons(eligibleProgs, suggestedProg, btnLabel);
+      const row = document.createElement("div");
+      row.className = "form-inline-actions recommend-calc-actions";
+      row.style.cssText = "justify-content:flex-start;";
+      const ordered = [suggestedProg, ...eligibleProgs.filter((x) => x !== suggestedProg)];
+      const seen = new Set();
+      ordered.forEach((p) => {
+        if (seen.has(p)) return;
+        seen.add(p);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = p === suggestedProg ? "btn btn-primary" : "btn";
+        btn.textContent = btnLabel(p);
+        btn.addEventListener("click", () => goSimpleWithProgram(p));
+        row.appendChild(btn);
+      });
+      group.appendChild(row);
     } else {
       const sugName = programDisplayName(suggestedProg);
       const hintText =

@@ -385,12 +385,9 @@ html.azm-iframe-embed body[data-afford-page="web"] #affordFormView.app.no-footer
     padding-bottom:32px;
   }
 }
-/* Results phase: reserve space only where sticky footer appears (avoid huge gap during “Want tailored rates?”). */
+/* Results: in-panel CTAs only — same bottom padding as form (no sticky calculator row). */
 html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView.app.no-footer{
   padding-bottom:28px;
-}
-html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView.app.no-footer[data-afford-results-phase="rec"]{
-  padding-bottom:calc(var(--footer-h) + 56px);
 }
 html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView > p.footer-note-small:last-of-type{
   margin-bottom:10px !important;
@@ -478,9 +475,12 @@ html.azm-iframe-embed #affordFormView .adv-block-form{
   padding-top:10px !important;
 }
 html.azm-iframe-embed .afford-recommend.visible{ padding:11px !important; }
-html.azm-iframe-embed #calcBtnGroup.recommend-btns{ margin-top:6px !important; }
+html.azm-iframe-embed #recommendBox #calcBtnGroup.recommend-btns{ margin-top:0 !important; }
 
-/* afford “We suggest” copy only in card; program buttons in sticky footer when embedded */
+/* afford “We suggest” + program buttons in-card when embedded (same row pattern as “Want tailored rates?”) */
+html.azm-iframe-embed #recommendBox .recommend-calc-actions{
+  margin-bottom:0 !important;
+}
 .recommend-program-hint{
   margin:0 0 4px;
   line-height:1.45;
