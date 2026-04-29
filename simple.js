@@ -42,6 +42,8 @@
   /** Format a non-negative integer with thousands commas for display in an input. */
   const fmtComma = (n) => (isFinite(+n) && +n >= 0 ? Math.round(+n).toLocaleString() : "");
 
+  const elSimpleMain = $("simpleMain");
+
   /** Reformat the three currency structure fields with commas after sync/blur. */
   function formatStructureFields() {
     ["value", "equity", "loan"].forEach((id) => {
@@ -92,6 +94,7 @@
     const editBtn = $("btnEditScenario");
     if (editBtn) editBtn.style.display = "none";
     $("btnRecalc").style.display = "";
+    if (elSimpleMain) elSimpleMain.classList.remove("simple-main--results");
     window.scrollTo({ top: 0, behavior: "smooth" });
     notifyParentIframeHeight();
   }
@@ -102,6 +105,7 @@
     const editBtn = $("btnEditScenario");
     if (editBtn) editBtn.style.display = "";
     $("btnRecalc").style.display = "none";
+    if (elSimpleMain) elSimpleMain.classList.add("simple-main--results");
     window.scrollTo({ top: 0, behavior: "smooth" });
     notifyParentIframeHeight();
   }

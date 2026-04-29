@@ -376,8 +376,15 @@ html.azm-iframe-embed .app{
   padding-top:8px;
   padding-bottom:calc(var(--footer-h) + 14px);
 }
-html.azm-iframe-embed body[data-afford-page="web"] .app.no-footer{
+html.azm-iframe-embed body[data-afford-page="web"] #affordFormView.app.no-footer{
   padding-bottom:calc(var(--footer-h) + 14px);
+}
+/* Afford steps 2–3 can use a taller sticky stack (lead + calculator row); reserve scroll space above bar */
+html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView.app.no-footer{
+  padding-bottom:calc(var(--footer-h) + 108px);
+}
+html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView > p.footer-note-small:last-of-type{
+  margin-bottom:20px !important;
 }
 @media (max-width:600px){
   html.azm-iframe-embed .app{ padding-bottom:calc(var(--footer-h) + 36px); }
@@ -500,10 +507,11 @@ html.azm-iframe-embed .afford-embed-footer .footer-inner{
 html.azm-iframe-embed #affordCalcErr,
 html.azm-iframe-embed #affordCalcErrResults{ margin-top:10px !important; margin-bottom:9px !important; }
 
-html.azm-iframe-embed body[data-afford-page="web"] #affordFormView .form-inline-actions,
-html.azm-iframe-embed body[data-afford-page="web"] #funnelNext .form-inline-actions{
+/* Afford form step 1 only: duplicate CTAs live in sticky footer when embedded */
+html.azm-iframe-embed body[data-afford-page="web"] #affordFormView .form-inline-actions{
   display:none !important;
 }
+/* "Want tailored rates?": keep Continue/Edit in-flow so copy above isn’t flush against the bar */
 
 #affordEmbedFooter{ display:none !important; }
 html.azm-iframe-embed body[data-afford-page="web"] #affordEmbedFooter{
@@ -542,4 +550,74 @@ html.azm-iframe-embed body[data-page="live"] #resultsPanel .result-human-legal{
 }
 html.azm-iframe-embed body[data-page="live"] #resultsPanel .result-human{
   margin-bottom:4px !important;
+}
+
+/* Live Estimate — results: denser type + rows so Get Rate bar fits in typical iframe like the form step */
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel.panel{
+  padding:8px 9px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .panel-title{
+  margin-bottom:5px !important;
+  font-size:0.95rem !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .results-summary.grid{
+  gap:6px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kpi{
+  padding:7px 8px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kpi-label{
+  font-size:11px !important;
+  margin-bottom:3px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kpi-value{
+  font-size:17px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kpi-suffix{
+  font-size:0.8rem !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kpi-hint{
+  font-size:10px !important;
+  margin-top:4px !important;
+  line-height:1.3 !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-card{
+  margin-top:6px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-card .card-title{
+  font-size:11px !important;
+  padding:5px 8px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-card .card-body{
+  padding:5px 8px 6px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kv{
+  padding:4px 0 !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kv span:first-child{
+  font-size:12px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .kv span:last-child{
+  font-size:13px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .quote-generated-line{
+  font-size:10px !important;
+  margin-top:4px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-human-title{
+  font-size:0.75rem !important;
+  margin-bottom:3px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-human{
+  font-size:10px !important;
+  line-height:1.35 !important;
+  margin-bottom:3px !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-legal{
+  font-size:9px !important;
+  line-height:1.35 !important;
+}
+html.azm-iframe-embed #simpleMain.simple-main--results #resultsPanel .result-human-legal{
+  margin-top:5px !important;
+  padding-top:5px !important;
 }

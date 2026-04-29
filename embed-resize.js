@@ -109,6 +109,8 @@
         "#simpleMain, #affordFormView, #affordResultsView, #resultsPanel"
       );
       mainRoots.forEach((el) => ro.observe(el));
+      const affFoot = document.getElementById("affordEmbedFooter");
+      if (affFoot) ro.observe(affFoot);
     }
 
     notifyNow();

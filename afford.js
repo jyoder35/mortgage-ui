@@ -696,9 +696,16 @@
     }));
 
     $("recommendTitle").textContent = "We suggest: " + rec.name;
-    $("recommendBody").textContent =
+
+    const sugNameForBody = programDisplayName(rec.ui);
+    const leadIn =
+      "Based on your profile, we suggest " +
+      sugNameForBody +
+      ", but other calculators may be available options based on your responses.";
+    const statsLine =
       rec.blurb + " Estimated max price about " + fmtUSD(maxForRec) +
       " (loan about " + fmtUSD(loanRec) + ", housing about " + fmtUSD(payRec) + "/mo) using your current scenario.";
+    $("recommendBody").textContent = embeddedAffordWebsite ? leadIn + " " + statsLine : statsLine;
 
     $("funnelNext").style.display = "none";
     buildCalcButtons(veteranYes, fico, loanRec, rec.ui);
@@ -715,16 +722,6 @@
         if (typeof window.__azmIframeNotifyHeight === "function") window.__azmIframeNotifyHeight();
       });
     });
-  }
-
-  function refreshAffordStickyCalcButton() {
-    if (PAGE_VARIANT !== "web" || !embeddedAffordWebsite) return;
-    const group = $("calcBtnGroup");
-    const primary = group && group.querySelector(".btn-primary");
-    const sticky = $("btnStickySuggestedCalc");
-    if (!primary || !sticky) return;
-    sticky.textContent = primary.textContent;
-    sticky.onclick = () => primary.click();
   }
 
   /** Sticky footer when affordweb embedded in iframe (paired with compact embed CSS). */
@@ -755,7 +752,6 @@
 
     if (recVisible) {
       stackCalc.style.display = "flex";
-      refreshAffordStickyCalcButton();
     } else if (leadVisible) {
       stackLead.style.display = "flex";
     }
@@ -793,6 +789,29 @@
 
   const FHA_LOAN_LIMIT_2026 = 541287;
 
+  function programDisplayName(ui) {
+    return ui === "CONV" ? "Conventional" : ui === "FHA" ? "FHA" : "VA";
+  }
+
+  /** When embedded: all calculator CTAs live in #affordProgBtnRow; suggestion box keeps copy only. */
+  function populateAffordStickyProgramButtons(eligibleProgs, suggestedProg, btnLabel) {
+    const row = $("affordProgBtnRow");
+    if (!row) return;
+    row.innerHTML = "";
+    const ordered = [suggestedProg, ...eligibleProgs.filter((x) => x !== suggestedProg)];
+    const seen = new Set();
+    ordered.forEach((p) => {
+      if (seen.has(p)) return;
+      seen.add(p);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = p === suggestedProg ? "btn btn-primary" : "btn";
+      btn.textContent = btnLabel(p);
+      btn.addEventListener("click", () => goSimpleWithProgram(p));
+      row.appendChild(btn);
+    });
+  }
+
   function buildCalcButtons(veteranYes, fico, estLoan, suggestedProg) {
     const group = $("calcBtnGroup");
     if (!group) return;
@@ -807,36 +826,45 @@
     const btnLabel = (p) =>
       p === "CONV" ? "Conventional Calculator" : p === "FHA" ? "FHA Calculator" : "VA Calculator";
 
-    const primary = document.createElement("button");
-    primary.type = "button";
-    primary.className = "btn btn-primary";
-    primary.style.cssText = "font-size:1rem; padding:14px 28px; margin-top:4px;";
-    primary.textContent = btnLabel(suggestedProg);
-    primary.addEventListener("click", () => goSimpleWithProgram(suggestedProg));
-    group.appendChild(primary);
+    const embedWeb = PAGE_VARIANT === "web" && embeddedAffordWebsite;
 
-    const secondary = eligibleProgs.filter((p) => p !== suggestedProg);
-    if (secondary.length > 0) {
-      const sugName = suggestedProg === "CONV" ? "Conventional" : suggestedProg;
-      const otherLabel = document.createElement("p");
-      otherLabel.className = "helper-notes";
-      otherLabel.style.cssText = "margin-top:16px; margin-bottom:8px;";
-      otherLabel.textContent =
-        "Based on your profile, we suggest " + sugName +
-        ", but these other calculators may be available options based on your responses:";
-      group.appendChild(otherLabel);
+    if (embedWeb) {
+      /* Copy + program choice live in recommendBody + sticky footer; no duplicate hint here. */
+      populateAffordStickyProgramButtons(eligibleProgs, suggestedProg, btnLabel);
+    } else {
+      const sugName = programDisplayName(suggestedProg);
+      const hintText =
+        "Based on your profile, we suggest " +
+        sugName +
+        ", but other calculators may be available options based on your responses.";
+      const primary = document.createElement("button");
+      primary.type = "button";
+      primary.className = "btn btn-primary";
+      primary.style.cssText = "width:100%;box-sizing:border-box;";
+      primary.textContent = btnLabel(suggestedProg);
+      primary.addEventListener("click", () => goSimpleWithProgram(suggestedProg));
+      group.appendChild(primary);
 
-      const secRow = document.createElement("div");
-      secRow.style.cssText = "display:flex; flex-wrap:wrap; gap:8px;";
-      secondary.forEach((p) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "btn";
-        btn.textContent = btnLabel(p);
-        btn.addEventListener("click", () => goSimpleWithProgram(p));
-        secRow.appendChild(btn);
-      });
-      group.appendChild(secRow);
+      const secondary = eligibleProgs.filter((p) => p !== suggestedProg);
+      if (secondary.length > 0) {
+        const hint = document.createElement("p");
+        hint.className = "helper-notes recommend-program-hint";
+        hint.style.marginTop = "12px";
+        hint.textContent = hintText;
+        group.appendChild(hint);
+
+        const secRow = document.createElement("div");
+        secRow.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;";
+        secondary.forEach((p) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn";
+          btn.textContent = btnLabel(p);
+          btn.addEventListener("click", () => goSimpleWithProgram(p));
+          secRow.appendChild(btn);
+        });
+        group.appendChild(secRow);
+      }
     }
 
     const warnEl = $("fhaLimitWarn");
@@ -851,7 +879,6 @@
         warnEl.style.display = "none";
       }
     }
-    refreshAffordStickyCalcButton();
   }
 
   function resetForm() {
@@ -885,6 +912,8 @@
     $("downDollarText").value = "";
     downPctSticky = null;
     $("recommendBox").classList.remove("visible");
+    const progRow = $("affordProgBtnRow");
+    if (progRow) progRow.innerHTML = "";
     $("funnelNext").style.display = "";
     currentForm = null;
     hideResultMsg();
