@@ -376,15 +376,24 @@ html.azm-iframe-embed .app{
   padding-top:8px;
   padding-bottom:calc(var(--footer-h) + 14px);
 }
+/* Step 1: in-flow CTAs (no sticky bar) — modest bottom spacing */
 html.azm-iframe-embed body[data-afford-page="web"] #affordFormView.app.no-footer{
-  padding-bottom:calc(var(--footer-h) + 14px);
+  padding-bottom:28px;
 }
-/* Afford steps 2–3 can use a taller sticky stack (lead + calculator row); reserve scroll space above bar */
+@media (max-width:600px){
+  html.azm-iframe-embed body[data-afford-page="web"] #affordFormView.app.no-footer{
+    padding-bottom:32px;
+  }
+}
+/* Results phase: reserve space only where sticky footer appears (avoid huge gap during “Want tailored rates?”). */
 html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView.app.no-footer{
-  padding-bottom:calc(var(--footer-h) + 108px);
+  padding-bottom:28px;
+}
+html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView.app.no-footer[data-afford-results-phase="rec"]{
+  padding-bottom:calc(var(--footer-h) + 56px);
 }
 html.azm-iframe-embed body[data-afford-page="web"] #affordResultsView > p.footer-note-small:last-of-type{
-  margin-bottom:20px !important;
+  margin-bottom:10px !important;
 }
 @media (max-width:600px){
   html.azm-iframe-embed .app{ padding-bottom:calc(var(--footer-h) + 36px); }
@@ -494,7 +503,8 @@ html.azm-iframe-embed .afford-footer-prog-buttons{
 html.azm-iframe-embed #affordEmbedFooter.footer-bar{
   height:auto;
   min-height:var(--footer-h);
-  padding:6px 0 8px;
+  padding:10px 0 14px;
+  box-sizing:border-box;
 }
 html.azm-iframe-embed #affordStickyCalc{
   width:100%;
@@ -507,14 +517,10 @@ html.azm-iframe-embed .afford-embed-footer .footer-inner{
 html.azm-iframe-embed #affordCalcErr,
 html.azm-iframe-embed #affordCalcErrResults{ margin-top:10px !important; margin-bottom:9px !important; }
 
-/* Afford form step 1 only: duplicate CTAs live in sticky footer when embedded */
-html.azm-iframe-embed body[data-afford-page="web"] #affordFormView .form-inline-actions{
-  display:none !important;
-}
-/* "Want tailored rates?": keep Continue/Edit in-flow so copy above isn’t flush against the bar */
+/* Sticky footer only after step 1 (results / lead / calculators) — avoids empty band on Afford 1 */
 
 #affordEmbedFooter{ display:none !important; }
-html.azm-iframe-embed body[data-afford-page="web"] #affordEmbedFooter{
+html.azm-iframe-embed body[data-afford-page="web"] #affordEmbedFooter.afford-embed-footer--visible{
   display:flex !important;
 }
 html.azm-iframe-embed .afford-embed-footer .footer-inner{

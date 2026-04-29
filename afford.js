@@ -740,21 +740,44 @@
     stackLead.style.display = "none";
     stackCalc.style.display = "none";
 
+    const foot = $("affordEmbedFooter");
+
+    /* Step 1: primary actions stay in-flow in the panel; hiding them for a duplicate sticky bar caused a large gray gap */
     if (isForm) {
-      stackForm.style.display = "flex";
+      if (foot) foot.classList.remove("afford-embed-footer--visible");
       return;
     }
 
     const fn = $("funnelNext");
     const leadVisible = fn && window.getComputedStyle(fn).display !== "none";
+    const resView = $("affordResultsView");
     const rec = $("recommendBox");
     const recVisible = rec && rec.classList.contains("visible");
 
-    if (recVisible) {
-      stackCalc.style.display = "flex";
-    } else if (leadVisible) {
-      stackLead.style.display = "flex";
+    if (
+      resView &&
+      window.getComputedStyle(resView).display !== "none"
+    ) {
+      resView.setAttribute(
+        "data-afford-results-phase",
+        recVisible ? "rec" : "lead"
+      );
     }
+
+    /* Recommendation step: calculators only in sticky footer (no duplicate CTAs here). */
+    if (recVisible) {
+      if (foot) foot.classList.add("afford-embed-footer--visible");
+      stackCalc.style.display = "flex";
+      return;
+    }
+
+    /* “Want tailored rates?”: Continue / Edit stay in-panel — sticky row duplicated them + added dead space */
+    if (leadVisible) {
+      if (foot) foot.classList.remove("afford-embed-footer--visible");
+      return;
+    }
+
+    if (foot) foot.classList.remove("afford-embed-footer--visible");
   }
 
   function syncAffordWebEmbeddedHeader(which) {
